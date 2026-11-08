@@ -8,12 +8,12 @@
 // real-time sync, Cloud Functions price validation, Storage uploads).
 // =====================================================================
 export const firebaseConfig = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: '',
+  apiKey: 'AIzaSyDrgNJwZLuOSMRQg1XnJ4zkvqNBF4hS-PQ',
+  authDomain: 'order-pickup-891f2.firebaseapp.com',
+  projectId: 'order-pickup-891f2',
+  storageBucket: 'order-pickup-891f2.firebasestorage.app',
+  messagingSenderId: '356022096623',
+  appId: '1:356022096623:web:76b461b2c3ebbeeac9411a',
   // Region where /functions is deployed (must match functions/index.js)
   functionsRegion: 'asia-southeast1',
 };
