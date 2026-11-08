@@ -1,0 +1,13 @@
+{
+  "name": "edenhall-smart-ordering",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Eden Hall – Smart QR cafe ordering & management system (vanilla JS PWA + Firebase)",
+  "type": "module",
+  "scripts": {
+    "start": "npx --yes http-server public -p 8080 -c-1",
+    "test": "node --test tests/logic.test.mjs",
+    "sync": "npm --prefix functions run sync",
+    "deploy": "npm run sync && firebase deploy"
+  }
+}

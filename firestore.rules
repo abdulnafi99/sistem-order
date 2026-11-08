@@ -1,0 +1,76 @@
+rules_version = '2';
+
+// =====================================================================
+// Eden Hall – Firestore security rules
+// • Customers can NEVER write orders, payments, points or vouchers
+//   directly. All of that goes through Cloud Functions (Admin SDK),
+//   which re-price orders from the menu and verify table QR tokens.
+// • Staff access is role/permission based (staff/{uid}.permissions).
+// =====================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function staffPath() { return /databases/$(database)/documents/staff/$(request.auth.uid); }
+    function isStaff() { return signedIn() && exists(staffPath()) && get(staffPath()).data.active == true; }
+    function can(p) {
+      return isStaff() && (get(staffPath()).data.role == 'super_admin' || p in get(staffPath()).data.permissions);
+    }
+    function onlyKeys(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    function owner(field) { return signedIn() && resource.data[field] == request.auth.uid; }
+
+    // Public restaurant profile, pricing rules & loyalty rules (no secrets stored here).
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if can('settings')
+        || (id == 'general' && can('rewards') && onlyKeys(['pointsPerRM', 'tierWindowDays', 'referralBonus', 'checkInPoints', 'profileBonus', 'tiers', 'updatedAt', 'id']));
+    }
+
+    match /categories/{id} { allow read: if true; allow write: if can('menu'); }
+    match /menu/{id}       { allow read: if true; allow write: if can('menu'); }
+    match /rewards/{id}    { allow read: if true; allow write: if can('rewards'); }
+
+    // Tables hold the secret QR token -> staff only. Customers verify via the verifyTable function.
+    match /tables/{id} {
+      allow read: if isStaff();
+      allow write: if can('tables');
+    }
+
+    match /orders/{id} {
+      allow read: if isStaff() || owner('customerUid');
+      allow write: if false;            // placeOrder / updateOrderStatus functions only
+    }
+    match /order_items/{id} { allow read: if isStaff(); allow write: if false; }
+    match /payments/{id} {
+      allow read: if can('payments') || can('dashboard') || can('orders');
+      allow write: if false;            // recordPayment / verifyPayment / gateway webhook only
+    }
+
+    match /users/{uid} {
+      allow read: if (signedIn() && request.auth.uid == uid) || can('customers') || can('rewards');
+      // customers may only change cosmetic fields; points/tier/spend are server-managed
+      allow update: if signedIn() && request.auth.uid == uid && onlyKeys(['favorites', 'avatar', 'updatedAt', 'id']);
+      allow create, delete: if false;   // registerCustomer function only
+    }
+
+    match /vouchers/{id} {
+      allow read: if owner('uid') || can('rewards') || can('customers');
+      allow write: if false;
+    }
+    match /loyalty_transactions/{id} {
+      allow read: if owner('uid') || can('rewards') || can('customers');
+      allow write: if false;
+    }
+    match /notifications/{id} {
+      allow read: if owner('uid') || (isStaff() && resource.data.audience == 'staff');
+      allow write: if false;
+    }
+
+    match /staff/{uid} {
+      allow read: if (signedIn() && request.auth.uid == uid) || can('staff');
+      allow write: if false;            // createStaff function only (also manages Auth accounts)
+    }
+    match /staff_activity/{id} { allow read: if can('staff'); allow write: if false; }
+    match /counters/{id}       { allow read, write: if false; }
+  }
+}
