@@ -1,0 +1,19 @@
+{
+  "name": "edenhall-functions",
+  "description": "Eden Hall Smart Ordering – trusted backend (Cloud Functions for Firebase)",
+  "type": "module",
+  "main": "index.js",
+  "engines": { "node": "20" },
+  "scripts": {
+    "sync": "cp ../public/js/core/pricing.js ../public/js/core/server-logic.js ../public/js/core/seed.js shared/",
+    "seed": "npm run sync && node seed.mjs",
+    "serve": "npm run sync && firebase emulators:start --only functions,firestore,auth",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.1.0",
+    "firebase-functions": "^5.0.1"
+  },
+  "private": true
+}
