@@ -5,13 +5,12 @@
 #   Secret   ADMIN_EMAIL, ADMIN_PASSWORD – only for the one-time "seed" run
 #   Variable BILLPLZ_ENABLED = true    – optional, only after Billplz secrets exist in Secret Manager
 #
-# Runs automatically on every push to main, or manually from the Actions tab
-# ("Run workflow", tick "seed" the first time to create the menu, tables and Super Admin).
+# Manual only (Actions tab → "Run workflow"; tick "seed" the first time to create the
+# menu, tables and Super Admin). The public demo is published by pages-demo.yml instead.
+# To deploy on every push again, add `push: { branches: [main] }` under `on:`.
 name: Deploy to Firebase
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       seed:

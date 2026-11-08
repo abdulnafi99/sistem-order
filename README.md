@@ -10,6 +10,10 @@ Dibina dengan **HTML5 + Vanilla CSS + Vanilla JavaScript** (tiada React/Vue/Boot
 | Admin dashboard | `admin.html` | Owner, Manager, Cashier, Waiter |
 | Kitchen Display (KDS) | `kitchen.html` | Kitchen staff (tablet) |
 
+**🔗 Demo online:** <https://abdulnafi99.github.io/sistem-order/> · [Admin](https://abdulnafi99.github.io/sistem-order/admin.html) · [Kitchen](https://abdulnafi99.github.io/sistem-order/kitchen.html)
+
+Laman demo diterbitkan automatik ke GitHub Pages oleh `.github/workflows/pages-demo.yml` setiap kali ada push ke `main`. Ia sentiasa berjalan dalam **Demo mode**: setiap pelawat mendapat data contoh sendiri dalam browser mereka, dan perubahan seorang pelawat tidak kelihatan kepada pelawat lain. Persediaan sekali sahaja: repo **Settings → Pages → Source: GitHub Actions**.
+
 ---
 
 ## 1. Cuba sekarang (Demo mode – tanpa setup)
@@ -118,9 +122,9 @@ tests/logic.test.mjs ← ujian peraturan bisnes (node --test)
 5. Isi Project ID dalam `.firebaserc` (`{ "projects": { "default": "<project-id>" } }`).
 6. Deploy – pilih **A** (GitHub Actions, disyorkan) atau **B** (dari komputer sendiri).
 
-### A. Deploy automatik dengan GitHub Actions
+### A. Deploy dengan GitHub Actions
 
-Workflow `.github/workflows/firebase-deploy.yml` deploy rules, indexes, Storage rules, Cloud Functions dan Hosting setiap kali ada push ke `main`.
+Workflow `.github/workflows/firebase-deploy.yml` deploy rules, indexes, Storage rules, Cloud Functions dan Hosting. Buat masa ini ia dijalankan **secara manual** sahaja (tab Actions → *Deploy to Firebase* → *Run workflow*) kerana laman awam ialah demo. Untuk deploy automatik setiap push, tambah `push: { branches: [main] }` di bawah `on:` dalam workflow itu.
 
 **a) Cipta service account untuk deploy** – di <https://console.cloud.google.com/iam-admin/serviceaccounts?project=PROJECT_ID>:
 1. **Create service account**, nama `github-deploy`.
@@ -136,7 +140,7 @@ Workflow `.github/workflows/firebase-deploy.yml` deploy rules, indexes, Storage 
 
 Jangan commit fail JSON itu ke repo, dan padamkan salinan di komputer selepas disimpan dalam GitHub.
 
-**c) Deploy pertama + seed** – tab **Actions → Deploy to Firebase → Run workflow**, tandakan **seed**, kemudian **Run**. Langkah seed mencipta menu, meja, rewards, settings dan akaun Super Admin (selamat dijalankan semula; dokumen sedia ada tidak ditimpa). Selepas itu, setiap push ke `main` deploy secara automatik.
+**c) Deploy pertama + seed** – tab **Actions → Deploy to Firebase → Run workflow**, tandakan **seed**, kemudian **Run**. Langkah seed mencipta menu, meja, rewards, settings dan akaun Super Admin (selamat dijalankan semula; dokumen sedia ada tidak ditimpa). 
 
 Laman akan berada di `https://<project-id>.web.app` (customer), `/admin.html` dan `/kitchen.html`.
 
