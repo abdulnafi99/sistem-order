@@ -1,7 +1,7 @@
 // Minimal dependency-free SVG charts (bar, line/area, donut, h-bars).
 import { esc } from './ui.js';
 
-const PALETTE = ['#075B46', '#D5B46A', '#3667b0', '#c2571a', '#6c4bd6', '#2a9b7a', '#95a19c', '#c0392b'];
+const PALETTE = ['#344E41', '#C7A66A', '#3667b0', '#c2571a', '#6c4bd6', '#5a7d68', '#95a19c', '#c0392b'];
 export const chartColor = (i) => PALETTE[i % PALETTE.length];
 
 const niceMax = (v) => {
@@ -13,7 +13,7 @@ const niceMax = (v) => {
 const fmtShort = (v) => (v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k` : String(Math.round(v)));
 
 /** data: [{label, value, value2?}] */
-export function barChart(data, { height = 240, color = '#075B46', color2 = null, prefix = '', showEvery = 1 } = {}) {
+export function barChart(data, { height = 240, color = '#344E41', color2 = null, prefix = '', showEvery = 1 } = {}) {
   const W = 640; const H = height; const pl = 44; const pb = 28; const pt = 14; const pr = 8;
   const max = niceMax(Math.max(...data.map((d) => Math.max(d.value, d.value2 || 0)), 0));
   const cw = (W - pl - pr) / Math.max(1, data.length);
@@ -30,7 +30,7 @@ export function barChart(data, { height = 240, color = '#075B46', color2 = null,
   return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" preserveAspectRatio="none" style="width:100%;height:${H}px">${grid}${bars}</svg>`;
 }
 
-export function lineChart(data, { height = 240, color = '#075B46', prefix = '', showEvery = 1 } = {}) {
+export function lineChart(data, { height = 240, color = '#344E41', prefix = '', showEvery = 1 } = {}) {
   const W = 640; const H = height; const pl = 44; const pb = 28; const pt = 14; const pr = 12;
   const max = niceMax(Math.max(...data.map((d) => d.value), 0));
   const step = (W - pl - pr) / Math.max(1, data.length - 1);
@@ -58,11 +58,11 @@ export function donutChart(segments, { size = 180, thickness = 26, center = '', 
   }).join('');
   const legend = segments.map((s, i) => `<div class="legend-row"><i style="background:${s.color || chartColor(i)}"></i><span>${esc(s.label)}</span><b>${Math.round((s.value / total) * 100)}%</b></div>`).join('');
   return `<div class="donut"><svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="#F1F3F0" stroke-width="${thickness}"/>${arcs}
-    <text x="50%" y="48%" text-anchor="middle" font-size="${String(center).length > 7 ? Math.max(11, Math.round(size / String(center).length / 1.05)) : 20}" font-weight="800" fill="#123D32">${esc(center)}</text><text x="50%" y="62%" text-anchor="middle" font-size="11" fill="#6b7a74">${esc(sub)}</text></svg><div class="legend">${legend}</div></div>`;
+    <text x="50%" y="48%" text-anchor="middle" font-size="${String(center).length > 7 ? Math.max(11, Math.round(size / String(center).length / 1.05)) : 20}" font-weight="800" fill="#1D332B">${esc(center)}</text><text x="50%" y="62%" text-anchor="middle" font-size="11" fill="#6b7a74">${esc(sub)}</text></svg><div class="legend">${legend}</div></div>`;
 }
 
 /** rows: [{label, value, sub?}] */
-export function hBars(rows, { color = '#075B46', fmt = (v) => v } = {}) {
+export function hBars(rows, { color = '#344E41', fmt = (v) => v } = {}) {
   const max = Math.max(...rows.map((r) => r.value), 1);
   return `<div class="hbars">${rows.map((r, i) => `<div class="hbar"><div class="row between small"><span class="ellipsis"><b class="muted">${i + 1}.</b> ${esc(r.label)}</span><b>${esc(fmt(r.value))}</b></div><div class="hbar-track"><i style="width:${(r.value / max) * 100}%;background:${color}"></i></div>${r.sub ? `<div class="xs muted">${esc(r.sub)}</div>` : ''}</div>`).join('')}</div>`;
 }

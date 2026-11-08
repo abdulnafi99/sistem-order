@@ -116,7 +116,7 @@ const payments = {
 
 // =================================================================== REWARDS
 const rewards = {
-  title: 'Rewards & Loyalty',
+  title: 'Loyalty & Rewards',
   render() {
     const s = A.settings;
     const dist = (s.tiers || []).map((t) => ({ label: t.name, value: A.users.filter((u) => (u.tierId || 'classic') === t.id).length, color: t.color }));
@@ -318,7 +318,7 @@ function computeReport(orders) {
 }
 
 const reports = {
-  title: 'Reports & Analytics',
+  title: 'Sales Reports',
   render() {
     const key = `${toMs(rf.from)}-${toMs(rf.to, true)}`;
     if (rf.key !== key || (toMs(rf.from) >= Date.now() - 120 * 864e5)) loadReport();
@@ -334,7 +334,7 @@ const reports = {
       ${k('Service Charge', rm(r.sc))}${k('SST Collected', rm(r.tax))}${k('Discounts', rm(r.discount))}${k('Cancelled Orders', num(r.cancelled.length), rm(r.cancelled.reduce((s, o) => s + o.total, 0)))}</div>
     <div class="grid-2"><div class="panel"><div class="panel-head"><h3>Daily Sales</h3><span class="chip">${esc(rf.from)} → ${esc(rf.to)}</span></div>${r.days.length ? barChart(r.days.map((d) => ({ label: d.date.slice(5), value: d.revenue })), { prefix: 'RM', showEvery: Math.ceil(r.days.length / 12) }) : '<p class="muted">No sales in this period.</p>'}</div>
       <div class="panel"><div class="panel-head"><h3>Payment Breakdown</h3></div>${donutChart([{ label: 'Cash', value: r.pay.cash }, { label: 'DuitNow', value: r.pay.duitnow }, { label: 'Online', value: r.pay.online }, { label: 'Unpaid', value: r.pay.unpaid, color: '#95a19c' }], { center: rm(r.revenue).replace('RM ', 'RM'), sub: 'revenue', size: 160 })}
-        <div class="mt">${donutChart([{ label: 'Food', value: r.food, color: '#075B46' }, { label: 'Beverage', value: r.bev, color: '#D5B46A' }], { center: '', size: 110, thickness: 18 })}</div></div></div>
+        <div class="mt">${donutChart([{ label: 'Food', value: r.food, color: '#344E41' }, { label: 'Beverage', value: r.bev, color: '#C7A66A' }], { center: '', size: 110, thickness: 18 })}</div></div></div>
     <div class="grid-2 even"><div class="panel"><div class="panel-head"><h3>Best Selling Products</h3></div><table class="data"><thead><tr><th>#</th><th>Item</th><th>Type</th><th>Qty</th><th class="right">Revenue</th></tr></thead><tbody>${r.best.map((b, i) => `<tr><td>${i + 1}</td><td><b>${esc(b.name)}</b></td><td><span class="chip ${b.categoryType === 'beverage' ? 'gold' : 'green'}">${b.categoryType === 'beverage' ? 'Beverage' : 'Food'}</span></td><td>${b.qty}</td><td class="right">${rm(b.revenue)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">No data</td></tr>'}</tbody></table></div>
       <div class="panel"><div class="panel-head"><h3>Monthly Sales</h3></div><table class="data"><thead><tr><th>Month</th><th>Orders</th><th class="right">Revenue</th></tr></thead><tbody>${r.months.map((m) => `<tr><td>${esc(m.month)}</td><td>${m.orders}</td><td class="right"><b>${rm(m.revenue)}</b></td></tr>`).join('') || '<tr><td colspan="3" class="muted">No data</td></tr>'}</tbody></table>
         <h4 class="mt mb">Order mix</h4>${hBars([{ label: 'Dine in', value: r.dine }, { label: 'Takeaway', value: r.take }], { fmt: (v) => `${v} orders` })}</div></div>
@@ -352,7 +352,7 @@ const reports = {
     $('#csv-items', el).addEventListener('click', () => { const r = computeReport(orders()); downloadCSV(`items-${rf.from}_${rf.to}.csv`, [['Item', 'Type', 'Qty', 'Revenue'], ...topItems(orders().filter((o) => o.status !== 'cancelled'), 9999).map((b) => [b.name, b.categoryType, b.qty, b.revenue.toFixed(2)]), [], ['Food total', '', '', r.food.toFixed(2)], ['Beverage total', '', '', r.bev.toFixed(2)]]); });
     $('#pdf', el).addEventListener('click', () => {
       const r = computeReport(orders()); const s = A.settings;
-      printHtml(`Sales report ${rf.from} – ${rf.to}`, `<h1 class="brand">${esc(s.restaurantName || 'Eden Hall')} – Sales Report</h1><p class="muted">${esc(rf.from)} to ${esc(rf.to)} · generated ${fmtDateTime(Date.now())} by ${esc(A.staff.name)}</p>
+      printHtml(`Sales report ${rf.from} – ${rf.to}`, `<h1 class="brand">${esc(s.restaurantName || 'SELAGI COFFEE')} – Sales Report</h1><p class="muted">${esc(rf.from)} to ${esc(rf.to)} · generated ${fmtDateTime(Date.now())} by ${esc(A.staff.name)}</p>
         <div class="kpis"><div class="kpi">Revenue<b>${rm(r.revenue)}</b></div><div class="kpi">Orders<b>${r.validCount}</b></div><div class="kpi">Avg order<b>${rm(r.aov)}</b></div><div class="kpi">Cancelled<b>${r.cancelled.length}</b></div>
         <div class="kpi">Food<b>${rm(r.food)}</b></div><div class="kpi">Beverage<b>${rm(r.bev)}</b></div><div class="kpi">Service charge<b>${rm(r.sc)}</b></div><div class="kpi">SST<b>${rm(r.tax)}</b></div></div>
         <h3>Payment breakdown</h3><table><tr><th>Method</th><th class="r">Amount</th></tr>${Object.entries(r.pay).map(([k2, v]) => `<tr><td>${esc(METHOD_LABEL[k2] || 'Unpaid')}</td><td class="r">${rm(v)}</td></tr>`).join('')}</table>
@@ -375,12 +375,12 @@ const settings = {
     <div class="panel settings-section"><h3>Restaurant profile</h3><p class="small muted mb">Shown on the customer app, receipts and QR cards.</p><div class="form-grid">
       <label class="field"><span>Restaurant name</span><input class="input" name="restaurantName" value="${esc(s.restaurantName)}"></label>
       <label class="field"><span>Tagline</span><input class="input" name="tagline" value="${esc(s.tagline)}"></label>
-      <label class="field"><span>Hero title <em class="hint">(seasonal headline, e.g. Ramadhan Nights)</em></span><input class="input" name="heroTitle" value="${esc(s.heroTitle || '')}"></label>
+      <label class="field"><span>Hero title <em class="hint">(seasonal headline, e.g. Slow Brewed Moments)</em></span><input class="input" name="heroTitle" value="${esc(s.heroTitle || '')}"></label>
       <label class="field"><span>Opening hours</span><input class="input" name="openingHours" value="${esc(s.openingHours)}"></label>
       <label class="field full"><span>Address</span><input class="input" name="address" value="${esc(s.address)}"></label>
       <label class="field"><span>Phone</span><input class="input" name="phone" value="${esc(s.phone)}"></label>
       <label class="field"><span>Email</span><input class="input" name="email" value="${esc(s.email)}"></label>
-      ${img('logo', 'Logo', 'Square image, 512×512 recommended.')}${img('banner', 'Hero banner', 'Landscape food photo for the home screen.')}
+      ${img('logo', 'Official logo', 'Square PNG/SVG, 512×512 recommended – always shown uncropped, never stretched.')}${img('banner', 'Hero banner', 'Landscape food photo for the home screen.')}
     </div></div>
     <div class="panel settings-section"><h3>Ordering</h3><div class="form-grid">
       <label class="check full"><span class="switch"><input type="checkbox" name="acceptingOrders" ${s.acceptingOrders !== false ? 'checked' : ''}><span></span></span> <b>Accepting orders</b> <span class="small muted">– turn off to pause all new orders</span></label>
@@ -388,8 +388,8 @@ const settings = {
       <label class="field"><span>SST / tax %</span><input class="input" name="taxPct" type="number" step="0.5" min="0" max="30" value="${Math.round((s.taxRate || 0) * 1000) / 10}"></label>
       <label class="check"><span class="switch"><input type="checkbox" name="taxEnabled" ${s.taxEnabled ? 'checked' : ''}><span></span></span> Charge SST</label>
       <label class="field"><span>Takeaway lead time (min)</span><input class="input" name="pickupLeadMinutes" type="number" min="0" value="${s.pickupLeadMinutes || 15}"></label>
-      <label class="field"><span>Order number prefix</span><input class="input" name="orderPrefix" value="${esc(s.orderPrefix || 'EH')}" maxlength="5"></label>
-      <label class="field full"><span>Public customer URL for QR codes <em class="hint">(optional – defaults to this site)</em></span><input class="input" name="publicUrl" value="${esc(s.publicUrl || '')}" placeholder="https://order.edenhall.my/index.html"></label>
+      <label class="field"><span>Order number prefix</span><input class="input" name="orderPrefix" value="${esc(s.orderPrefix || 'SC')}" maxlength="5"></label>
+      <label class="field full"><span>Public customer URL for QR codes <em class="hint">(optional – defaults to this site)</em></span><input class="input" name="publicUrl" value="${esc(s.publicUrl || '')}" placeholder="https://order.selagicoffee.my/index.html"></label>
     </div></div>
     <div class="panel settings-section"><h3>Payments</h3><div class="form-grid">
       <label class="check"><span class="switch"><input type="checkbox" name="pm_cash" ${pm.cash ? 'checked' : ''}><span></span></span> Cash / pay at counter</label>
@@ -413,7 +413,7 @@ const settings = {
       d.addEventListener('click', (e) => { if (e.target.closest('[data-clear]')) { e.preventDefault(); uploads[f] = null; $(`#prev-${f}`, el).style.opacity = '.4'; $(`#prev-${f}`, el).src = 'icons/icon.svg'; return; } input.click(); });
       input.addEventListener('change', async () => { if (!input.files[0]) return; try { uploads[f] = await A.api.upload(input.files[0], 'branding'); $(`#prev-${f}`, el).src = uploads[f]; $(`#prev-${f}`, el).style.opacity = '1'; toast('Image ready – remember to save', 'success'); } catch (e) { toast(errMsg(e), 'error'); } });
     });
-    $('#add-promo', el).addEventListener('click', () => $('#promo-rows', el).insertAdjacentHTML('beforeend', promoRow({ id: `p${Date.now()}`, title: '', subtitle: '', badge: '', color: '#123D32' })));
+    $('#add-promo', el).addEventListener('click', () => $('#promo-rows', el).insertAdjacentHTML('beforeend', promoRow({ id: `p${Date.now()}`, title: '', subtitle: '', badge: '', color: '#1D332B' })));
     el.addEventListener('click', (e) => { const r = e.target.closest('[data-rm-promo]'); if (r) r.closest('.promo-row').remove(); });
     const reset = $('#reset-demo', el);
     if (reset) reset.addEventListener('click', async () => { if (await confirmDialog('Delete all demo orders, customers and changes in this browser?', { danger: true, okLabel: 'Reset' })) { await A.api.resetDemo(); location.reload(); } });
@@ -424,7 +424,7 @@ const settings = {
       const payload = {
         restaurantName: v.restaurantName, tagline: v.tagline, heroTitle: v.heroTitle, openingHours: v.openingHours, address: v.address, phone: v.phone, email: v.email,
         acceptingOrders: v.acceptingOrders, serviceChargeRate: Math.max(0, (v.serviceChargePct || 0) / 100), taxRate: Math.max(0, (v.taxPct || 0) / 100), taxEnabled: v.taxEnabled,
-        pickupLeadMinutes: v.pickupLeadMinutes || 0, orderPrefix: (v.orderPrefix || 'EH').toUpperCase(), publicUrl: v.publicUrl.trim(),
+        pickupLeadMinutes: v.pickupLeadMinutes || 0, orderPrefix: (v.orderPrefix || 'SC').toUpperCase(), publicUrl: v.publicUrl.trim(),
         paymentMethods: { cash: v.pm_cash, duitnow: v.pm_duitnow, online: !!v.pm_online && A.api.mode !== 'demo' }, duitnowName: v.duitnowName, duitnowId: v.duitnowId, promotions,
       };
       Object.entries(uploads).forEach(([k, val]) => { payload[k] = val; });
@@ -436,7 +436,7 @@ const settings = {
   },
 };
 function promoRow(p) {
-  return `<div class="promo-row var-row" style="grid-template-columns:1.2fr 1.6fr .8fr 60px 40px" data-id="${esc(p.id)}"><input class="input" data-k="title" placeholder="Title" value="${esc(p.title)}"><input class="input" data-k="subtitle" placeholder="Subtitle" value="${esc(p.subtitle)}"><input class="input" data-k="badge" placeholder="Badge" value="${esc(p.badge)}"><input class="input" type="color" data-k="color" value="${esc(p.color || '#123D32')}" style="padding:4px;height:46px"><button type="button" class="icon-btn sm" data-rm-promo>${icon('x', 16)}</button></div>`;
+  return `<div class="promo-row var-row" style="grid-template-columns:1.2fr 1.6fr .8fr 60px 40px" data-id="${esc(p.id)}"><input class="input" data-k="title" placeholder="Title" value="${esc(p.title)}"><input class="input" data-k="subtitle" placeholder="Subtitle" value="${esc(p.subtitle)}"><input class="input" data-k="badge" placeholder="Badge" value="${esc(p.badge)}"><input class="input" type="color" data-k="color" value="${esc(p.color || '#1D332B')}" style="padding:4px;height:46px"><button type="button" class="icon-btn sm" data-rm-promo>${icon('x', 16)}</button></div>`;
 }
 
 export const VIEWS2 = { customers, payments, rewards, staff, reports, settings };

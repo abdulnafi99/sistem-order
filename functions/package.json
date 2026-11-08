@@ -1,6 +1,6 @@
 {
-  "name": "edenhall-functions",
-  "description": "Eden Hall Smart Ordering – trusted backend (Cloud Functions for Firebase)",
+  "name": "selagi-functions",
+  "description": "SELAGI COFFEE Smart Ordering – trusted backend (Cloud Functions for Firebase)",
   "type": "module",
   "main": "index.js",
   "engines": { "node": "20" },

@@ -3,26 +3,26 @@
 
 export const DEFAULT_SETTINGS = {
   id: 'general',
-  restaurantName: 'Eden Hall',
-  tagline: 'Your favourite neighbourhood cafe',
-  heroTitle: 'Ramadhan Nights',
+  restaurantName: 'SELAGI COFFEE',
+  tagline: 'Premium artisan coffee, slowly crafted',
+  heroTitle: 'Slow Brewed Moments',
   logo: null,
   banner: null,
-  address: 'No. 12, Jalan Eden, 50450 Kuala Lumpur',
+  address: 'No. 8, Jalan Selagi, 50450 Kuala Lumpur',
   phone: '+60 12-345 6789',
-  email: 'hello@edenhall.my',
+  email: 'hello@selagicoffee.my',
   openingHours: 'Daily · 8:00 AM – 11:00 PM',
   currency: 'RM',
   timezoneOffset: 8,
-  orderPrefix: 'EH',
-  memberPrefix: 'EH',
+  orderPrefix: 'SC',
+  memberPrefix: 'SC',
   acceptingOrders: true,
   serviceChargeRate: 0.1,
   taxEnabled: true,
   taxRate: 0.06,
   pickupLeadMinutes: 15,
   paymentMethods: { cash: true, duitnow: true, online: false },
-  duitnowName: 'EDEN HALL SDN BHD',
+  duitnowName: 'SELAGI COFFEE SDN BHD',
   duitnowId: '1234567890',
   duitnowQr: null,
   gateway: { provider: 'billplz', enabled: false },
@@ -31,16 +31,16 @@ export const DEFAULT_SETTINGS = {
   tiers: [
     { id: 'classic', name: 'Classic', min: 0, multiplier: 1, color: '#9aa6a1', perks: ['Earn 10 pts per RM1', 'Birthday treat'] },
     { id: 'silver', name: 'Silver', min: 2000, multiplier: 1.2, color: '#b8c2c8', perks: ['1.2× points', 'Free upsize monthly', 'Priority pickup'] },
-    { id: 'gold', name: 'Gold', min: 5000, multiplier: 1.5, color: '#D5B46A', perks: ['1.5× points', 'Free dessert monthly', 'Members-only menu'] },
+    { id: 'gold', name: 'Gold', min: 5000, multiplier: 1.5, color: '#C7A66A', perks: ['1.5× points', 'Free dessert monthly', 'Members-only menu'] },
     { id: 'platinum', name: 'Platinum', min: 10000, multiplier: 2, color: '#e5e4e2', perks: ['2× points', 'Free drink weekly', 'Private event invites'] },
   ],
   referralBonus: 500,
   checkInPoints: 10,
   profileBonus: 75,
   promotions: [
-    { id: 'p1', title: 'Iftar Set for Two', subtitle: 'Main + drinks + dessert · RM 59', badge: 'Ramadhan', color: '#123D32' },
-    { id: 'p2', title: 'Happy Hour Coffee', subtitle: '20% off all coffee · 3–5 PM', badge: 'Daily', color: '#7a4a2a' },
-    { id: 'p3', title: 'Double Points Weekend', subtitle: 'Earn 2× points every Sat & Sun', badge: 'Members', color: '#8a6d2b' },
+    { id: 'p1', title: 'Single Origin of the Month', subtitle: 'Hand-brewed V60 · Ethiopia Yirgacheffe', badge: 'Brew Bar', color: '#344E41' },
+    { id: 'p2', title: 'Happy Hour Coffee', subtitle: '20% off all coffee · 3–5 PM', badge: 'Daily', color: '#5b4632' },
+    { id: 'p3', title: 'Double Points Weekend', subtitle: 'Earn 2× points every Sat & Sun', badge: 'Members', color: '#8a6d3b' },
   ],
 };
 
@@ -77,7 +77,7 @@ export const MENU = [
   M('nasi-lemak', 'Nasi Lemak Ayam Rempah', 'local', 18, 'art:nasi', 'Coconut rice, spiced fried chicken, sambal, egg, anchovies and peanuts.', { featured: true, addons: [{ id: 'egg', name: 'Extra egg', price: 2 }, { id: 'sambal', name: 'Extra sambal', price: 1.5 }], tags: ['Local fave'], soldCount: 55 }),
   M('mee-goreng', 'Mee Goreng Mamak', 'local', 15, 'art:noodle', 'Wok-fried yellow noodles with prawns, tofu and egg.', { variants: [{ id: 'mild', name: 'Mild', price: 0 }, { id: 'spicy', name: 'Spicy', price: 0 }], soldCount: 22 }),
   M('sup-tulang', 'Sup Tulang Merah', 'local', 22, 'art:soup', 'Slow-cooked beef bone in a rich red spiced broth with bread.', { soldCount: 9 }),
-  M('eggs-toast', 'Eden Big Breakfast', 'main', 26, 'art:toast', 'Sourdough toast, sunny eggs, chicken sausage, hash brown and sautéed mushrooms.', { soldCount: 14 }),
+  M('eggs-toast', 'Selagi Big Breakfast', 'main', 26, 'art:toast', 'Sourdough toast, sunny eggs, chicken sausage, hash brown and sautéed mushrooms.', { soldCount: 14 }),
   M('truffle-fries', 'Truffle Fries', 'snacks', 14, 'art:fries', 'Shoestring fries tossed in truffle oil and parmesan.', { soldCount: 40 }),
   M('buffalo-wings', 'Buffalo Wings (6pcs)', 'snacks', 18, 'art:wings', 'Spicy buffalo wings with blue cheese dip.', { soldCount: 19 }),
   M('caesar', 'Grilled Chicken Caesar', 'snacks', 19, 'art:salad', 'Romaine, grilled chicken, croutons, parmesan and caesar dressing.', { soldCount: 7 }),
@@ -89,7 +89,7 @@ export const MENU = [
   M('teh-tarik', 'Teh Tarik', 'beverages', 6, 'art:tea', 'Pulled milk tea, frothy and sweet.', { variants: temp, soldCount: 52 }),
   M('orange-juice', 'Fresh Orange Juice', 'beverages', 12, 'art:juice', 'Freshly squeezed oranges, no sugar added.', { variants: sizes, soldCount: 15 }),
   M('iced-matcha', 'Iced Matcha Latte', 'signature', 15, 'art:matcha', 'Ceremonial-grade matcha with fresh milk over ice.', { variants: sizes, addons: [{ id: 'oat', name: 'Oat milk', price: 2 }], featured: true, soldCount: 29 }),
-  M('eden-sunset', 'Eden Sunset', 'signature', 14, 'art:juice', 'Passion fruit, orange and sparkling soda with a grenadine sunset.', { tags: ['Signature'], soldCount: 24 }),
+  M('selagi-sunset', 'Selagi Sunset', 'signature', 14, 'art:juice', 'Passion fruit, orange and sparkling soda with a grenadine sunset.', { tags: ['Signature'], soldCount: 24 }),
   M('rose-bandung', 'Rose Bandung Float', 'signature', 12, 'art:iced', 'Rose syrup and milk with a scoop of vanilla ice cream.', { soldCount: 8 }),
 ];
 
@@ -113,9 +113,9 @@ export const REWARDS = [
 ];
 
 export const DEMO_STAFF = [
-  { email: 'admin@edenhall.my', password: 'admin123', name: 'Aisyah (Owner)', role: 'super_admin' },
-  { email: 'manager@edenhall.my', password: 'manager123', name: 'Daniel Lim', role: 'manager' },
-  { email: 'cashier@edenhall.my', password: 'cashier123', name: 'Mei Ling', role: 'cashier' },
-  { email: 'kitchen@edenhall.my', password: 'kitchen123', name: 'Chef Rahman', role: 'kitchen' },
-  { email: 'waiter@edenhall.my', password: 'waiter123', name: 'Arif', role: 'waiter' },
+  { email: 'admin@selagicoffee.my', password: 'admin123', name: 'Aisyah (Owner)', role: 'super_admin' },
+  { email: 'manager@selagicoffee.my', password: 'manager123', name: 'Daniel Lim', role: 'manager' },
+  { email: 'cashier@selagicoffee.my', password: 'cashier123', name: 'Mei Ling', role: 'cashier' },
+  { email: 'kitchen@selagicoffee.my', password: 'kitchen123', name: 'Chef Rahman', role: 'kitchen' },
+  { email: 'waiter@selagicoffee.my', password: 'waiter123', name: 'Arif', role: 'waiter' },
 ];

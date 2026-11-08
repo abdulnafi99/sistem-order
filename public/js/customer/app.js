@@ -1,5 +1,6 @@
 // =====================================================================
-// Eden Hall – Customer PWA (entry)
+// SELAGI COFFEE – Customer PWA (entry)
+// Navigation: hash routes (no full reloads) + floating bottom nav with a sliding active pill.
 // Scan QR → Browse Menu → Add to Cart → Checkout → Track Order
 // =====================================================================
 import { initApi } from '../core/api.js';
@@ -14,6 +15,8 @@ import { renderOrders, renderOrder, activeOrders, stepIndex } from './orders.js'
 import { renderRewards, renderAccount, openReferral } from './account.js';
 
 let currentRoute = '';
+const TAB_ROOTS = new Set(['/', 'home/', 'menu/', 'orders/', 'rewards/', 'account/']);
+const scrollMemory = new Map();
 let deferredInstall = null;
 const subs = { user: [] };
 const prevStatus = new Map();
@@ -32,7 +35,7 @@ async function boot() {
   }
   const api = S.api;
 
-  api.watchDoc('settings', 'general', (s) => { S.settings = s || {}; document.title = `${S.settings.restaurantName || 'Eden Hall'} | ${S.settings.tagline || ''}`; emit(); });
+  api.watchDoc('settings', 'general', (s) => { S.settings = s || {}; document.title = `${S.settings.restaurantName || 'SELAGI COFFEE'} | ${S.settings.tagline || ''}`; emit(); });
   api.watch('categories', {}, (c) => { S.categories = c.filter((x) => x.active !== false).sort((a, b) => (a.sort || 0) - (b.sort || 0)); emit(); });
   api.watch('menu', {}, (m) => { S.menu = m.filter((x) => !x.deleted); emit(); });
   api.watch('rewards', { where: [['active', '==', true]] }, (r) => { S.rewards = r.sort((a, b) => a.cost - b.cost); emit(); });
@@ -145,6 +148,8 @@ function render(isNav) {
   const app = $('#app');
   const routeKey = `${page}/${arg || ''}`;
   const changed = routeKey !== currentRoute;
+  // remember where the customer was on each tab so switching back feels native
+  if (changed && TAB_ROOTS.has(currentRoute)) scrollMemory.set(currentRoute, window.scrollY);
   currentRoute = routeKey;
 
   // preserve scroll & focus on live re-renders
@@ -164,9 +169,9 @@ function render(isNav) {
     case 'account': html = renderAccount(arg); break;
     default: html = renderHome();
   }
-  app.innerHTML = `${demoBanner(S.api)}<div class="view ${changed ? '' : 'no-anim'}">${html}</div>`;
+  app.innerHTML = `${demoBanner(S.api)}<div class="view ${changed ? 'page-enter' : 'no-anim'}">${html}</div>`;
   if (!changed) app.querySelector('.view').style.animation = 'none';
-  if (isNav && changed) window.scrollTo(0, 0); else window.scrollTo(0, scrollY);
+  if (isNav && changed) window.scrollTo(0, TAB_ROOTS.has(routeKey) ? (scrollMemory.get(routeKey) || 0) : 0); else window.scrollTo(0, scrollY);
   if (activeId || activeName) {
     const el = activeId ? document.getElementById(activeId) : app.querySelector(`[name="${activeName}"]`);
     if (el) { el.focus(); try { if (selStart != null) el.setSelectionRange(selStart, selStart); } catch { /* */ } }
@@ -178,21 +183,58 @@ function render(isNav) {
 }
 
 // ------------------------------------------------------------------ chrome
-function updateNav(page) {
+const NAV_ITEMS = [
+  // key, href, icon, label
+  ['home', '#/', 'cup', 'Singgah'],
+  ['menu', '#/menu', 'menu', 'Menu'],
+  ['orders', '#/orders', 'receipt', 'Pesanan'],
+  ['rewards', '#/rewards', 'gift', 'Rewards'],
+  ['account', '#/account', 'user', 'Account'],
+];
+const NAV_ALIASES = { '': 'home', order: 'orders', checkout: 'menu' };
+let navIndex = -1;
+
+function buildNav() {
   const nav = $('#nav');
-  const cur = page || (location.hash.replace(/^#\/?/, '').split('/')[0] || 'home');
+  nav.style.setProperty('--n', NAV_ITEMS.length);
+  nav.innerHTML = `<span class="nav-pill" aria-hidden="true"></span>${NAV_ITEMS.map(([key, href, ic, label]) => `<a href="${href}" data-nav="${key}" aria-current="false">${icon(ic, 23)}<span>${label}</span><i class="nav-badge" hidden></i></a>`).join('')}`;
+  nav.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-nav]');
+    // Instant feedback before the route renders – keeps the active text in sync with the tap.
+    if (a) setNavActive(a.dataset.nav, true);
+  });
+}
+
+function setNavActive(key, tapped) {
+  const nav = $('#nav');
+  const idx = Math.max(0, NAV_ITEMS.findIndex(([k]) => k === key));
+  const first = navIndex < 0;
+  if (idx === navIndex) return;
+  nav.classList.toggle('no-anim', first);
+  nav.style.setProperty('--i', idx);
+  $$('a[data-nav]', nav).forEach((a, i) => {
+    const on = i === idx;
+    a.classList.toggle('active', on);
+    a.setAttribute('aria-current', on ? 'page' : 'false');
+    if (on && tapped) { a.classList.remove('tapped'); void a.offsetWidth; a.classList.add('tapped'); }
+  });
+  navIndex = idx;
+  if (first) requestAnimationFrame(() => requestAnimationFrame(() => nav.classList.remove('no-anim')));
+}
+
+function updateNav(page) {
+  if (!$('#nav [data-nav]')) buildNav();
+  const raw = page != null ? page : (location.hash.replace(/^#\/?/, '').split('/')[0] || 'home');
+  const cur = NAV_ALIASES[raw] != null ? NAV_ALIASES[raw] : raw;
+  setNavActive(NAV_ITEMS.some(([k]) => k === cur) ? cur : 'home', false);
   const act = activeOrders().length;
-  const items = [
-    ['home', '#/', 'home', 'Home'],
-    ['menu', '#/menu', 'menu', 'Menu'],
-    ['orders', '#/orders', 'receipt', 'My Orders', act],
-    ['rewards', '#/rewards', 'gift', 'Rewards'],
-    ['account', '#/account', 'user', 'Account'],
-  ];
-  nav.innerHTML = items.map(([key, href, ic, label, badge]) => {
-    const on = cur === key || (key === 'orders' && cur === 'order') || (key === 'menu' && cur === 'checkout');
-    return `<a href="${href}" class="${on ? 'active' : ''}" aria-current="${on ? 'page' : 'false'}">${icon(ic, 23)}<span>${label}</span>${badge ? `<i class="nav-badge">${badge}</i>` : ''}</a>`;
-  }).join('');
+  const badge = $('#nav [data-nav="orders"] .nav-badge');
+  if (badge) {
+    const prev = badge.textContent;
+    badge.hidden = !act;
+    badge.textContent = act ? String(act) : '';
+    if (act && prev !== String(act)) { badge.classList.remove('count-pop'); void badge.offsetWidth; badge.classList.add('count-pop'); }
+  }
 }
 
 function updateCartBar(bump, page) {
@@ -257,8 +299,8 @@ function heroHtml() {
     <div class="hero-inner">
       ${s.heroTitle ? `<div class="hero-title">${esc(s.heroTitle)}</div>` : ''}
       ${logoMark(s, 120, 30)}
-      <div class="hero-tagline">${esc(s.tagline || 'Your favourite neighbourhood cafe')}</div>
-      <button class="loc-pill" data-action="info">${icon('pin', 18)} ${esc(s.restaurantName || 'Eden Hall')} ${icon('chevron', 16)}</button>
+      <div class="hero-tagline">${esc(s.tagline || 'Premium artisan coffee, slowly crafted')}</div>
+      <button class="loc-pill" data-action="info">${icon('pin', 18)} ${esc(s.restaurantName || 'SELAGI COFFEE')} ${icon('chevron', 16)}</button>
     </div>
   </header>`;
 }
@@ -315,7 +357,7 @@ function renderHome() {
     </div>
 
     ${promos.length ? `<section class="section"><div class="section-head"><h2>Promotions</h2></div>
-      <div class="h-scroll">${promos.map((pr) => `<div class="promo" style="background:linear-gradient(135deg, ${esc(pr.color || '#123D32')}, #0c2a22)"><span class="chip">${esc(pr.badge || 'Promo')}</span><h3>${esc(pr.title)}</h3><p>${esc(pr.subtitle || '')}</p></div>`).join('')}</div></section>` : ''}
+      <div class="h-scroll">${promos.map((pr) => `<div class="promo" style="background:linear-gradient(135deg, ${esc(pr.color || '#1D332B')}, #14251f)"><span class="chip">${esc(pr.badge || 'Promo')}</span><h3>${esc(pr.title)}</h3><p>${esc(pr.subtitle || '')}</p></div>`).join('')}</div></section>` : ''}
 
     ${featured.length ? `<section class="section"><div class="section-head"><h2>Featured</h2><a href="#/menu">See menu</a></div>
       <div class="h-scroll">${featured.map((m) => `<div class="feat-card" data-item="${esc(m.id)}"><div class="dish-img"><img src="${esc(menuImage(m.image))}" alt="" loading="lazy"></div><h4 class="ellipsis">${esc(m.name)}</h4><div class="price">${rm(m.price)}</div></div>`).join('')}</div></section>` : ''}
@@ -367,12 +409,12 @@ export function openAuth(mode = 'login', after) {
       <p class="xs muted center">By continuing you agree to our Privacy Policy. Your orders on this device stay linked to your account.</p>
     </form>`;
   openModal({
-    title: mode === 'register' ? 'Join Eden Hall Rewards' : 'Welcome back',
+    title: mode === 'register' ? 'Join SELAGI COFFEE Rewards' : 'Welcome back',
     sheet: true,
     body: body(mode),
     onOpen: (el, close) => {
       const bind = () => {
-        $$('[data-mode]', el).forEach((b) => b.addEventListener('click', () => { $('.modal-body', el).innerHTML = body(b.dataset.mode); $('.modal-head h3', el).textContent = b.dataset.mode === 'register' ? 'Join Eden Hall Rewards' : 'Welcome back'; bind(); }));
+        $$('[data-mode]', el).forEach((b) => b.addEventListener('click', () => { $('.modal-body', el).innerHTML = body(b.dataset.mode); $('.modal-head h3', el).textContent = b.dataset.mode === 'register' ? 'Join SELAGI COFFEE Rewards' : 'Welcome back'; bind(); }));
         const fg = $('[data-forgot]', el);
         if (fg) fg.addEventListener('click', async () => {
           const email = $('[name=email]', el).value;
@@ -401,7 +443,7 @@ export function openAuth(mode = 'login', after) {
 function openInfo() {
   const s = S.settings;
   openModal({
-    title: s.restaurantName || 'Eden Hall',
+    title: s.restaurantName || 'SELAGI COFFEE',
     sheet: true,
     body: `<div class="stack">
       <div class="row">${icon('pin', 20)}<span>${esc(s.address || '')}</span></div>
@@ -416,7 +458,7 @@ async function promptInstall() {
   if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; return; }
   openModal({
     title: 'Add to Home Screen', sheet: true,
-    body: `<div class="stack"><p>Install ${esc(S.settings.restaurantName || 'Eden Hall')} like an app – no app store needed.</p>
+    body: `<div class="stack"><p>Install ${esc(S.settings.restaurantName || 'SELAGI COFFEE')} like an app – no app store needed.</p>
       <div class="card card-pad small"><b>iPhone / iPad (Safari):</b> tap the Share button, then <b>Add to Home Screen</b>.</div>
       <div class="card card-pad small"><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Install app</b> / <b>Add to Home screen</b>.</div></div>`,
   });

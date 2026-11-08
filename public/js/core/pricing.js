@@ -1,5 +1,5 @@
 // =====================================================================
-// Eden Hall – Shared pricing engine
+// SELAGI COFFEE – Shared pricing engine
 // ---------------------------------------------------------------------
 // SINGLE SOURCE OF TRUTH for order price calculation.
 // Used by:

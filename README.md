@@ -1,4 +1,4 @@
-# Eden Hall – Smart QR Ordering & Management System
+# SELAGI COFFEE – Smart QR Ordering & Management System
 
 Aplikasi web **PWA** untuk restoran/kafe: pelanggan **scan QR di meja → lihat menu → tambah ke cart → checkout → jejak pesanan**, manakala pesanan masuk terus ke **Admin Dashboard** dan **Kitchen Display** secara *real-time*.
 
@@ -13,6 +13,16 @@ Dibina dengan **HTML5 + Vanilla CSS + Vanilla JavaScript** (tiada React/Vue/Boot
 **🔗 Demo online:** <https://abdulnafi99.github.io/sistem-order/> · [Admin](https://abdulnafi99.github.io/sistem-order/admin.html) · [Kitchen](https://abdulnafi99.github.io/sistem-order/kitchen.html)
 
 Laman demo diterbitkan automatik ke GitHub Pages oleh `.github/workflows/pages-demo.yml` setiap kali ada push ke `main`. Ia sentiasa berjalan dalam **Demo mode**: setiap pelawat mendapat data contoh sendiri dalam browser mereka, dan perubahan seorang pelawat tidak kelihatan kepada pelawat lain. Persediaan sekali sahaja: repo **Settings → Pages → Source: GitHub Actions**.
+
+## Identiti & UI (SELAGI COFFEE)
+
+- **Palet:** Moss Green `#344E41`, Dark Green `#1D332B`, Cream `#F5F0E7`, Warm Beige `#E9DFD0`, Gold `#C7A66A`, Text `#28342E` – ditakrif sebagai CSS variables dalam `public/css/base.css`.
+- **Tipografi:** Cormorant Garamond (tajuk & headline promosi), Poppins (menu, harga, dashboard).
+- **Logo:** placeholder SELAGI COFFEE terbina dalam; admin boleh muat naik logo rasmi di *Settings → Branding* (dipaparkan `object-fit: contain`, tidak diregang).
+- **Navigasi pelanggan:** Singgah · Menu · Pesanan · Rewards · Account – floating pill dengan sliding indicator.
+- **Admin:** sidebar (desktop boleh expand/collapse, tablet = icon rail, mobile = drawer) dengan latar aktif moss yang meluncur.
+- **Kitchen Display:** segmented tabs New Orders · Preparing · Ready · Completed dengan counter beranimasi.
+- Semua pertukaran halaman tanpa reload (hash routing), animasi 250–350ms `cubic-bezier(0.22, 1, 0.36, 1)`, dan menghormati `prefers-reduced-motion`.
 
 ---
 
@@ -33,13 +43,13 @@ Bila `js/config/firebase-config.js` masih kosong, sistem berjalan dalam **Demo m
 
 | Peranan | Email | Kata laluan |
 |---|---|---|
-| Super Admin | admin@edenhall.my | admin123 |
-| Manager | manager@edenhall.my | manager123 |
-| Cashier | cashier@edenhall.my | cashier123 |
-| Kitchen Staff | kitchen@edenhall.my | kitchen123 |
-| Waiter | waiter@edenhall.my | waiter123 |
+| Super Admin | admin@selagicoffee.my | admin123 |
+| Manager | manager@selagicoffee.my | manager123 |
+| Cashier | cashier@selagicoffee.my | cashier123 |
+| Kitchen Staff | kitchen@selagicoffee.my | kitchen123 |
+| Waiter | waiter@selagicoffee.my | waiter123 |
 
-**Cuba aliran QR:** Admin → *Tables & QR* → klik QR mana-mana meja → *Test link*. Customer app akan buka dengan notifikasi *"Welcome to Eden Hall – Table 02"*. Buka admin dan kitchen di tab lain dan lihat pesanan masuk secara langsung (dengan bunyi).
+**Cuba aliran QR:** Admin → *Tables & QR* → klik QR mana-mana meja → *Test link*. Customer app akan buka dengan notifikasi *"Welcome to SELAGI COFFEE – Table 02"*. Buka admin dan kitchen di tab lain dan lihat pesanan masuk secara langsung (dengan bunyi).
 
 > Demo mode hanya untuk satu peranti. Untuk operasi sebenar (telefon pelanggan, tablet dapur, PC kaunter) sila sambungkan Firebase – lihat bahagian 4.
 

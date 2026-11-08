@@ -1,5 +1,5 @@
 // =====================================================================
-// Eden Hall – Server logic (trusted business rules)
+// SELAGI COFFEE – Server logic (trusted business rules)
 // ---------------------------------------------------------------------
 // This module is executed in a TRUSTED context only:
 //   • Firebase Cloud Functions (production) – see functions/index.js
@@ -182,7 +182,7 @@ export async function verifyTable(db, ctx, { tableId, token }) {
   const settings = await loadSettings(db);
   return {
     tableId: table.id, name: table.name, number: table.number, zone: table.zone || '',
-    restaurantName: settings.restaurantName || 'Eden Hall', sessionId: table.sessionId || null,
+    restaurantName: settings.restaurantName || 'SELAGI COFFEE', sessionId: table.sessionId || null,
   };
 }
 
@@ -270,7 +270,7 @@ export async function placeOrder(db, ctx, input) {
   const seq = ((counter && counter.seq) || 0) + 1;
   db.set('counters', counterId, { id: counterId, seq });
   const p = tzParts(ctx.now, offset);
-  const orderNo = `${settings.orderPrefix || 'EH'}-${String(p.y).slice(2)}${pad(p.m)}${pad(p.d)}-${pad(seq, 3)}`;
+  const orderNo = `${settings.orderPrefix || 'SC'}-${String(p.y).slice(2)}${pad(p.m)}${pad(p.d)}-${pad(seq, 3)}`;
   const orderId = db.newId('orders');
 
   let sessionId = null;
@@ -489,7 +489,7 @@ export async function registerCustomer(db, ctx, { name, email, phone, referralCo
   const user = {
     id: ctx.uid, uid: ctx.uid, name: cleanName, email: str(email, 120).toLowerCase(), phone: str(phone, 20), birthday: '',
     points: 0, lifetimePoints: 0, tierId: 'classic', totalOrders: 0, totalSpent: 0,
-    memberNo: `${settings.memberPrefix || 'EH'}-${pad(seq, 4)}`, referralCode: randomCode(8), referredBy: referrer ? referrer.id : null,
+    memberNo: `${settings.memberPrefix || 'SC'}-${pad(seq, 4)}`, referralCode: randomCode(8), referredBy: referrer ? referrer.id : null,
     referralCount: 0, referralPoints: 0, favorites: [], profileBonusClaimed: false, lastCheckIn: null, createdAt: ctx.now,
   };
   const bonus = Number(settings.referralBonus || 0);
@@ -500,7 +500,7 @@ export async function registerCustomer(db, ctx, { name, email, phone, referralCo
     notify(db, ctx.now, { audience: 'customer', uid: referrer.id, type: 'points', title: `+${bonus} referral points`, body: `${cleanName} joined using your code.` });
   }
   db.set('users', user.id, user);
-  notify(db, ctx.now, { audience: 'customer', uid: user.id, type: 'welcome', title: `Welcome to ${settings.restaurantName || 'Eden Hall'}!`, body: 'Earn points on every order and unlock rewards.' });
+  notify(db, ctx.now, { audience: 'customer', uid: user.id, type: 'welcome', title: `Welcome to ${settings.restaurantName || 'SELAGI COFFEE'}!`, body: 'Earn points on every order and unlock rewards.' });
   return { ok: true, memberNo: user.memberNo };
 }
 

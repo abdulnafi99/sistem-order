@@ -1,5 +1,5 @@
 // =====================================================================
-// Eden Hall – Kitchen Display System (KDS)
+// SELAGI COFFEE – Kitchen Display System (KDS)
 // New Orders → Preparing → Ready → Completed, live, with sound alerts.
 // =====================================================================
 import { initApi } from '../core/api.js';
@@ -7,7 +7,7 @@ import { hasPerm } from '../core/server-logic.js';
 import { DEMO_STAFF } from '../core/seed.js';
 import { $, $$, esc, icon, toast, errMsg, chime, unlockAudio, registerSW, hideSplash, demoBanner, logoMark, formData, fmtTime, printHtml } from '../core/ui.js';
 
-const K = { api: null, staff: null, settings: {}, active: [], done: [], loaded: false, seen: new Set(), tab: 'new', soundReady: false, struck: JSON.parse(sessionStorage.getItem('eh_kds_struck') || '{}') };
+const K = { api: null, staff: null, settings: {}, active: [], done: [], loaded: false, seen: new Set(), tab: ['new', 'prep', 'ready', 'done'].includes(sessionStorage.getItem('sc_kds_tab')) ? sessionStorage.getItem('sc_kds_tab') : 'new', soundReady: false, struck: JSON.parse(sessionStorage.getItem('eh_kds_struck') || '{}') };
 let subs = [];
 let queued = false;
 
@@ -62,13 +62,13 @@ let titleTimer = null;
 function flashTitle(n) {
   clearInterval(titleTimer);
   let on = false; let count = 0;
-  titleTimer = setInterval(() => { document.title = (on = !on) ? `🔔 ${n} NEW ORDER${n > 1 ? 'S' : ''}` : 'Kitchen Display · Eden Hall'; if (++count > 12) { clearInterval(titleTimer); document.title = 'Kitchen Display · Eden Hall'; } }, 700);
+  titleTimer = setInterval(() => { document.title = (on = !on) ? `🔔 ${n} NEW ORDER${n > 1 ? 'S' : ''}` : 'Kitchen Display · SELAGI COFFEE'; if (++count > 12) { clearInterval(titleTimer); document.title = 'Kitchen Display · SELAGI COFFEE'; } }, 700);
 }
 
 function renderLogin(msg) {
   const s = K.settings;
   $('#root').innerHTML = `<div class="login-screen" style="grid-template-columns:1fr"><div class="login-form-wrap"><div class="login-card">
-    <div class="row mb">${logoMark(s, 52)}<div><b style="font-family:var(--font-serif);font-size:22px">${esc(s.restaurantName || 'Eden Hall')}</b><div class="xs muted" style="letter-spacing:.14em">KITCHEN DISPLAY</div></div></div>
+    <div class="row mb">${logoMark(s, 52)}<div><b style="font-family:var(--font-serif);font-size:22px">${esc(s.restaurantName || 'SELAGI COFFEE')}</b><div class="xs muted" style="letter-spacing:.14em">KITCHEN DISPLAY</div></div></div>
     ${demoBanner(K.api)}${msg ? `<div class="chip red mb" style="white-space:normal">${esc(msg)}</div>` : ''}
     <form class="stack" id="kl"><label class="field"><span>Email</span><input class="input" name="email" type="email" required></label><label class="field"><span>Password</span><input class="input" name="password" type="password" required></label><button class="btn btn-primary btn-lg btn-block">Open Kitchen Display</button></form>
     ${K.api.mode === 'demo' ? `<div class="demo-creds">${DEMO_STAFF.filter((d) => ['kitchen', 'super_admin', 'waiter'].includes(d.role)).map((d) => `<button data-e="${d.email}" data-p="${d.password}">${d.email} / ${d.password}</button>`).join('')}</div>` : ''}
@@ -91,19 +91,39 @@ function render() {
       <span id="sound-slot"></span>
       <button class="icon-btn" id="fs" title="Fullscreen">${icon('external', 20)}</button>
       <button class="icon-btn" id="klogout" title="Sign out">${icon('logout', 20)}</button></header>
-      ${demoBanner(K.api)}<main class="kds-board" id="board"></main><nav class="kds-tabs" id="ktabs"></nav></div>`;
+      ${demoBanner(K.api)}
+      <nav class="kds-seg" id="ktabs" role="tablist" aria-label="Order stages"><span class="seg-pill" aria-hidden="true"></span>${COLS.map((c) => `<button role="tab" data-tab="${c.key}" aria-selected="false">${icon(c.ic, 18)}<span class="seg-label">${c.title}</span><span class="seg-count" data-count="${c.key}">0</span></button>`).join('')}</nav>
+      <main class="kds-board" id="board"></main></div>`;
     bind();
+    $('#ktabs').classList.add('no-anim');
   }
   $('#sound-slot').innerHTML = K.soundReady ? `<button class="icon-btn" id="test-sound" title="Test sound">${icon('volume', 20)}</button>` : `<button class="sound-warn" id="enable-sound">${icon('volume', 16)} Tap to enable sound</button>`;
   const late = K.active.filter((o) => minutes(o) >= 15 && o.status !== 'ready').length;
   $('#kstats').innerHTML = `<span>Active <b>${K.active.length}</b></span><span>·</span><span>Late <b style="color:${late ? '#ff8a80' : '#fff'}">${late}</b></span><span>·</span><span>Done today <b>${K.done.length}</b></span>`;
   $('#board').innerHTML = COLS.map((c) => {
     const list = all.filter(c.match);
-    return `<section class="kds-col ${c.cls} ${K.tab === c.key ? 'show' : ''}"><div class="kds-col-head"><span>${c.title}</span><span class="cnt">${list.length}</span></div>
+    return `<section class="kds-col ${c.cls} ${K.tab === c.key ? 'show' : ''}" data-col="${c.key}"><div class="kds-col-head"><span>${c.title}</span><span class="cnt">${list.length}</span></div>
       ${list.length ? list.map(ticket).join('') : `<div class="kds-empty">${c.key === 'new' ? 'Waiting for orders…' : 'Nothing here'}</div>`}</section>`;
   }).join('');
-  $('#ktabs').innerHTML = COLS.map((c) => `<button data-tab="${c.key}" class="${K.tab === c.key ? 'active' : ''}">${icon(c.ic, 20)}${c.title.split(' ')[0]} (${all.filter(c.match).length})</button>`).join('');
+  updateTabs(all);
   updateClock(); updateTimers();
+}
+
+/** Animated segmented navigation: sliding moss pill + popping counters, updated in place. */
+function updateTabs(all) {
+  const nav = $('#ktabs');
+  const idx = Math.max(0, COLS.findIndex((c) => c.key === K.tab));
+  nav.style.setProperty('--i', idx);
+  COLS.forEach((c) => {
+    const b = $(`[data-tab="${c.key}"]`, nav);
+    const on = c.key === K.tab;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+    const cnt = $(`[data-count="${c.key}"]`, nav);
+    const n = String(all.filter(c.match).length);
+    if (cnt.textContent !== n) { cnt.textContent = n; cnt.classList.remove('count-pop'); void cnt.offsetWidth; cnt.classList.add('count-pop'); }
+  });
+  if (nav.classList.contains('no-anim')) requestAnimationFrame(() => requestAnimationFrame(() => nav.classList.remove('no-anim')));
 }
 
 const minutes = (o) => Math.floor((Date.now() - o.createdAt) / 60000);
@@ -126,7 +146,13 @@ function bind() {
     if (e.target.closest('#test-sound')) { chime('new'); return; }
     if (e.target.closest('#fs')) { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); return; }
     if (e.target.closest('#klogout')) { await K.api.auth.logout(); $('#root').innerHTML = ''; renderLogin(); return; }
-    const tab = e.target.closest('[data-tab]'); if (tab) { K.tab = tab.dataset.tab; schedule(); return; }
+    const tab = e.target.closest('[data-tab]');
+    if (tab) {
+      K.tab = tab.dataset.tab; sessionStorage.setItem('sc_kds_tab', K.tab); schedule();
+      // on wide screens every column is visible – bring the chosen one into view
+      requestAnimationFrame(() => { const col = $(`.kds-col[data-col="${K.tab}"]`); if (col && window.innerWidth >= 1100) col.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest', inline: 'nearest' }); });
+      return;
+    }
     const card = e.target.closest('.ticket'); if (!card) return;
     const o = [...K.active, ...K.done].find((x) => x.id === card.dataset.id); if (!o) return;
     const st = e.target.closest('[data-strike]');

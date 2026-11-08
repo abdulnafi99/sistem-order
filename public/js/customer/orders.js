@@ -25,7 +25,7 @@ export function renderOrders() {
       <div class="grow"><b>${esc(o.orderNo)}</b><div class="xs muted">${esc(o.tableName || `Takeaway${o.pickup && o.pickup.time ? ` · ${o.pickup.time}` : ''}`)} · ${fmtDateTime(o.createdAt)}</div>
       <div class="xs muted ellipsis">${o.items.map((l) => `${l.qty}× ${esc(l.name)}`).join(', ')}</div></div>
       <div class="right"><b>${rm(o.total)}</b><div class="mt-s"><span class="chip status-${o.status}">${STATUS_LABEL[o.status]}</span></div></div></div>`;
-  return `<div class="page-head"><h1>My Orders</h1><a class="btn btn-sm btn-primary" href="#/menu">${icon('plus', 16)} New order</a></div>
+  return `<div class="page-head"><h1>Pesanan</h1><a class="btn btn-sm btn-primary" href="#/menu">${icon('plus', 16)} New order</a></div>
   <div class="page-pad stack">
     ${session.length ? `<div class="card card-pad" style="background:var(--emerald-soft)"><div class="row between"><div><div class="eyebrow">${esc(S.table.name)} · this visit</div><b style="font-size:18px">${session.length} order(s) · ${rm(session.reduce((s, o) => s + o.total, 0))}</b></div><a class="btn btn-sm btn-primary" href="#/menu">Order more</a></div></div>` : ''}
     <div class="eyebrow">Active (${act.length})</div>
