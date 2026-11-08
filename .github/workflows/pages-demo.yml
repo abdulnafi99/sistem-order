@@ -1,0 +1,61 @@
+# Publishes the app to GitHub Pages as a DEMO site.
+# The published copy always runs in demo mode (data stays in each visitor's
+# browser, demo staff accounts on the login screens), so no Firebase project,
+# Blaze plan or service account is needed.
+#
+# One-time setup: repo Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# Site URL: https://<owner>.github.io/<repo>/
+name: Deploy demo to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Business-rule tests
+        run: npm test
+
+      - name: Build demo site
+        run: |
+          mkdir -p _site
+          cp -R public/. _site/
+          # Force demo mode in the published copy: blank Firebase config.
+          cat > _site/js/config/firebase-config.js <<'JS'
+          // Demo build (GitHub Pages): Firebase intentionally disabled.
+          // Data is stored in each visitor's browser only.
+          export const firebaseConfig = { apiKey: '', functionsRegion: 'asia-southeast1' };
+          JS
+          touch _site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
