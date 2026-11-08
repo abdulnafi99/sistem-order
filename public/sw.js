@@ -1,8 +1,8 @@
 // SELAGI COFFEE service worker – app-shell caching + offline fallback.
-const VERSION = 'selagi-v3';
+const VERSION = 'selagi-v4';
 const SHELL = [
   './', './index.html', './admin.html', './kitchen.html', './offline.html', './manifest.webmanifest',
-  './css/base.css', './css/customer.css', './css/admin.css', './css/kitchen.css',
+  './css/base.css', './css/customer.css', './css/admin.css', './css/kitchen.css', './css/responsive.css',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './vendor/qrcode.js',
   './js/config/firebase-config.js',
   './js/core/api.js', './js/core/ui.js', './js/core/art.js', './js/core/pricing.js', './js/core/seed.js',
