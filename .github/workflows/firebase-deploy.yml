@@ -1,4 +1,4 @@
-# Deploys Eden Hall to Firebase (rules, indexes, Storage rules, Cloud Functions, Hosting).
+# Deploys SELAGI COFFEE to Firebase (rules, indexes, Storage rules, Cloud Functions, Hosting).
 #
 # Required GitHub configuration (repo Settings → Secrets and variables → Actions):
 #   Secret   FIREBASE_SERVICE_ACCOUNT  – JSON key of a deploy service account (see README §4)
@@ -35,7 +35,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Check Firebase configuration
         env:

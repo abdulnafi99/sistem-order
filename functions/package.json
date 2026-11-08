@@ -3,7 +3,7 @@
   "description": "SELAGI COFFEE Smart Ordering – trusted backend (Cloud Functions for Firebase)",
   "type": "module",
   "main": "index.js",
-  "engines": { "node": "20" },
+  "engines": { "node": "22" },
   "scripts": {
     "sync": "cp ../public/js/core/pricing.js ../public/js/core/server-logic.js ../public/js/core/seed.js shared/",
     "seed": "npm run sync && node seed.mjs",
