@@ -13,7 +13,7 @@ export function renderMenu(catArg) {
   const cats = S.categories;
   const activeCat = catArg && cats.find((c) => c.id === catArg) ? catArg : 'all';
   return `<div class="menu-top">
-      <div class="search">${icon('search', 20)}<input class="input" id="menu-search" type="search" placeholder="Search toasts, drinks, combos…" value="${esc(search)}" autocomplete="off"></div>
+      <div class="search">${icon('search', 20)}<input class="input" id="menu-search" type="search" placeholder="Search coffee, pastries, beans…" value="${esc(search)}" autocomplete="off"></div>
       <div class="cat-chips" id="cat-chips">
         <button class="cat-chip ${activeCat === 'all' ? 'active' : ''}" data-cat="all"><span class="em">✨</span>All Menu</button>
         ${cats.map((c) => `<button class="cat-chip ${activeCat === c.id ? 'active' : ''}" data-cat="${esc(c.id)}"><span class="em">${esc(c.icon || '🍽️')}</span>${esc(c.name)}</button>`).join('')}

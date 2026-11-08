@@ -91,6 +91,34 @@ const ART = {
     <circle cx="86" cy="94" r="8" fill="#f5d6b8"/><circle cx="114" cy="112" r="7" fill="#f5d6b8"/><path d="M96 118 q8-6 16 0" stroke="#fff" stroke-width="3" fill="none"/>${greens(110, 86)}`,
   wings: () => plate(true) + `${[[78, 92], [112, 88], [94, 120], [124, 118]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="18" ry="12" fill="#b2461f" transform="rotate(${x % 40} ${x} ${y})"/><ellipse cx="${x - 4}" cy="${y - 3}" rx="8" ry="4" fill="#d7663a" opacity=".8"/>`).join('')}
     ${[0, 1, 2].map((i) => `<circle cx="${70 + i * 30}" cy="${140 - i * 4}" r="2" fill="#f3f0e6"/>`).join('')}`,
+  latte: () => ART.coffee('#b07a4f'),
+  cappuccino: () => ART.coffee('#8f5c37'),
+  mocha: () => ART.coffee('#4a2a1a'),
+  espresso: () => `<ellipse cx="100" cy="146" rx="52" ry="14" fill="#e9e1d4" filter="url(#sh)"/>
+    <path d="M70 96 h60 l-6 40 q-2 8-12 8 h-24 q-10 0-12-8z" fill="#ffffff" filter="url(#sh)"/>
+    <path d="M130 104 q16 0 14 14 q-2 12-18 12" stroke="#ffffff" stroke-width="7" fill="none"/>
+    <ellipse cx="100" cy="97" rx="30" ry="7" fill="#3b2114"/><ellipse cx="96" cy="96" rx="14" ry="3" fill="#a86b3c" opacity=".8"/>
+    <path d="M90 78 q-5-8 2-14 M108 78 q-5-8 2-14" stroke="#ffffff" stroke-width="3" fill="none" opacity=".6" stroke-linecap="round"/>`,
+  pourover: () => `<ellipse cx="100" cy="162" rx="48" ry="10" fill="#1D332B" opacity=".15"/>
+    <path d="M70 108 h60 l-4 46 q-1 8-10 8 h-32 q-9 0-10-8z" fill="#ffffff" opacity=".6" stroke="#ffffff" stroke-width="2"/>
+    <path d="M73 128 h54 l-2 26 q-1 5-7 5 h-36 q-6 0-7-5z" fill="#6b3f26"/>
+    <path d="M58 52 h84 l-28 50 h-28z" fill="#f4efe6" filter="url(#sh)"/><path d="M64 56 h72 l-24 42 h-24z" fill="#e7d8c2"/>
+    <path d="M70 58 h60" stroke="#C7A66A" stroke-width="3"/><rect x="84" y="100" width="32" height="8" rx="3" fill="#f4efe6"/>
+    <path d="M100 108 v12" stroke="#6b3f26" stroke-width="3" stroke-linecap="round"/>`,
+  coldbrew: () => ART.iced('#3a2416', '#5a3a26'),
+  icedlatte: () => ART.iced('#b07a4f', '#efe2cc'),
+  croissant: () => plate() + `
+    <path d="M52 112 q10-40 48-44 q38 4 48 44 q-10 8-20 2 q-8-24-28-26 q-20 2-28 26 q-10 6-20-2z" fill="#d8953d"/>
+    <path d="M76 84 q8 14 4 30 M100 70 v40 M124 84 q-8 14-4 30" stroke="#b06f24" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M62 104 q38-32 76 0" stroke="#f0c37a" stroke-width="4" fill="none" opacity=".7"/>`,
+  cookie: () => plate() + `${[[86, 96, 26], [118, 116, 22]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#c98a4b"/><circle cx="${x}" cy="${y}" r="${r - 4}" fill="#d9a066"/>
+    <circle cx="${x - 8}" cy="${y - 6}" r="4" fill="#4a2a1a"/><circle cx="${x + 7}" cy="${y - 2}" r="3.5" fill="#4a2a1a"/><circle cx="${x - 2}" cy="${y + 8}" r="3.5" fill="#4a2a1a"/>`).join('')}`,
+  beans: () => `<ellipse cx="100" cy="166" rx="54" ry="10" fill="#1D332B" opacity=".18"/>
+    <path d="M60 50 h80 l6 112 h-92z" fill="#344E41" filter="url(#sh)"/><path d="M60 50 h80 l-4 14 h-72z" fill="#1D332B"/>
+    <rect x="70" y="86" width="60" height="50" rx="6" fill="#F5F0E7"/>
+    <g transform="translate(100 104) rotate(-28)"><ellipse rx="8" ry="11" fill="#6b3f26"/><path d="M0 -10 C -4 -3 4 3 0 10" stroke="#F5F0E7" stroke-width="2" fill="none"/></g>
+    <rect x="80" y="122" width="40" height="4" rx="2" fill="#C7A66A"/>
+    ${[[48, 150], [150, 152], [140, 162]].map(([x, y]) => `<g transform="translate(${x} ${y}) rotate(30)"><ellipse rx="6" ry="8" fill="#5a3320"/><path d="M0 -7 C -3 -2 3 2 0 7" stroke="#2c180e" stroke-width="1.5" fill="none"/></g>`).join('')}`,
 };
 
 const BG = {
@@ -103,8 +131,8 @@ const cache = {};
 export function dishArt(kind = 'pasta') {
   if (cache[kind]) return cache[kind];
   const fn = ART[kind] || ART.pasta;
-  const drink = ['coffee', 'iced', 'juice', 'matcha', 'tea'].includes(kind);
-  const dessert = ['cake', 'waffle'].includes(kind);
+  const drink = ['coffee', 'iced', 'juice', 'matcha', 'tea', 'latte', 'cappuccino', 'mocha', 'espresso', 'pourover', 'coldbrew', 'icedlatte', 'beans'].includes(kind);
+  const dessert = ['cake', 'waffle', 'croissant', 'cookie'].includes(kind);
   const svg = wrap(drink ? BG.drink : dessert ? BG.dessert : BG.food, fn());
   cache[kind] = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   return cache[kind];

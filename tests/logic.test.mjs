@@ -72,17 +72,17 @@ test('pricing rejects bad input', () => {
   assert.equal(priceOrder({ items: [], menuMap, settings: s, type: 'dine_in' }).ok, false);
   assert.equal(priceOrder({ items: [{ menuId: 'nope', qty: 1 }], menuMap, settings: s, type: 'dine_in' }).ok, false);
   assert.equal(priceOrder({ items: [{ menuId: 'latte', qty: 1 }], menuMap, settings: s, type: 'dine_in' }).ok, false, 'variant required');
-  assert.equal(priceOrder({ items: [{ menuId: 'nasi-lemak', qty: 0 }], menuMap, settings: s, type: 'dine_in' }).ok, false);
-  assert.equal(priceOrder({ items: [{ menuId: 'nasi-lemak', qty: 1.5 }], menuMap, settings: s, type: 'dine_in' }).ok, false);
-  assert.equal(priceOrder({ items: [{ menuId: 'nasi-lemak', qty: 1, addonIds: ['fake'] }], menuMap, settings: s, type: 'dine_in' }).ok, false);
-  assert.equal(priceOrder({ items: [{ menuId: 'wagyu-sirloin', qty: 7, variantId: 'm' }], menuMap, settings: s, type: 'dine_in' }).ok, false, 'stock limit');
+  assert.equal(priceOrder({ items: [{ menuId: 'avocado-toast', qty: 0 }], menuMap, settings: s, type: 'dine_in' }).ok, false);
+  assert.equal(priceOrder({ items: [{ menuId: 'avocado-toast', qty: 1.5 }], menuMap, settings: s, type: 'dine_in' }).ok, false);
+  assert.equal(priceOrder({ items: [{ menuId: 'avocado-toast', qty: 1, addonIds: ['fake'] }], menuMap, settings: s, type: 'dine_in' }).ok, false);
+  assert.equal(priceOrder({ items: [{ menuId: 'single-origin', qty: 7, variantId: 'v60' }], menuMap, settings: s, type: 'dine_in' }).ok, false, 'stock limit');
 });
 
 test('placeOrder ignores client-sent prices and verifies the table token', async () => {
   const db = memoryDb().seed();
-  await assert.rejects(db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'nasi-lemak', qty: 1 }], { token: 'WRONG' })), /could not be verified/);
-  await assert.rejects(db.run(LOGIC.placeOrder, { uid: null }, dineIn([{ menuId: 'nasi-lemak', qty: 1 }])), /sign in/);
-  const r = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'nasi-lemak', qty: 1, price: 0.01, unitPrice: 0.01 }], { total: 0.01, subtotal: 0.01 }));
+  await assert.rejects(db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'avocado-toast', qty: 1 }], { token: 'WRONG' })), /could not be verified/);
+  await assert.rejects(db.run(LOGIC.placeOrder, { uid: null }, dineIn([{ menuId: 'avocado-toast', qty: 1 }])), /sign in/);
+  const r = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'avocado-toast', qty: 1, price: 0.01, unitPrice: 0.01 }], { total: 0.01, subtotal: 0.01 }));
   const o = db.data.orders[r.orderId];
   assert.equal(o.subtotal, 18);
   assert.equal(o.total, 20.99); // 18 + 1.80 + 1.19 (6% of 19.80 = 1.188)
@@ -92,14 +92,14 @@ test('placeOrder ignores client-sent prices and verifies the table token', async
   assert.ok(db.data.tables.T02.sessionId);
   assert.ok(Object.values(db.data.notifications).some((n) => n.audience === 'staff' && n.type === 'new_order'));
   // a second order joins the same table session
-  const r2 = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'teh-tarik', qty: 2, variantId: 'hot' }]));
+  const r2 = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'americano', qty: 2, variantId: 'hot' }]));
   assert.equal(db.data.orders[r2.orderId].sessionId, o.sessionId);
   assert.notEqual(db.data.orders[r2.orderId].orderNo, o.orderNo, 'unique order numbers');
 });
 
 test('takeaway requires valid contact details and pickup time', async () => {
   const db = memoryDb().seed();
-  const base = { type: 'takeaway', items: [{ menuId: 'nasi-lemak', qty: 1 }], paymentMethod: 'cash' };
+  const base = { type: 'takeaway', items: [{ menuId: 'avocado-toast', qty: 1 }], paymentMethod: 'cash' };
   await assert.rejects(db.run(LOGIC.placeOrder, { uid: 'c1' }, { ...base, customerName: 'Ali', customerPhone: 'abc' }), /phone/);
   const later = new Date(Date.now() + 3 * 3600e3 + 8 * 3600e3); // expressed in MYT
   const date = later.toISOString().slice(0, 10); const time = later.toISOString().slice(11, 16);
@@ -110,7 +110,7 @@ test('takeaway requires valid contact details and pickup time', async () => {
 
 test('status flow enforces transitions and permissions', async () => {
   const db = memoryDb().seed();
-  const { orderId } = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'nasi-lemak', qty: 1 }]));
+  const { orderId } = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'avocado-toast', qty: 1 }]));
   await assert.rejects(db.run(LOGIC.updateOrderStatus, { uid: 'c2' }, { orderId, status: 'confirmed' }), /Staff login/);
   await assert.rejects(db.run(LOGIC.updateOrderStatus, { uid: kitchen.uid, staff: kitchen }, { orderId, status: 'ready' }), /Cannot move/);
   await assert.rejects(db.run(LOGIC.updateOrderStatus, { uid: kitchen.uid, staff: kitchen }, { orderId, status: 'cancelled' }), /permission/);
@@ -121,7 +121,7 @@ test('status flow enforces transitions and permissions', async () => {
 
 test('customer may cancel only their own order before it is accepted', async () => {
   const db = memoryDb().seed();
-  const { orderId } = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'nasi-lemak', qty: 1 }]));
+  const { orderId } = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'avocado-toast', qty: 1 }]));
   await assert.rejects(db.run(LOGIC.updateOrderStatus, { uid: 'someone-else' }, { orderId, status: 'cancelled' }), /Staff login/);
   await db.run(LOGIC.updateOrderStatus, { uid: 'c1' }, { orderId, status: 'cancelled' });
   assert.equal(db.data.orders[orderId].status, 'cancelled');
@@ -129,7 +129,7 @@ test('customer may cancel only their own order before it is accepted', async () 
 
 test('payments: DuitNow reference is NOT payment; only cashier verification or gateway webhook marks paid', async () => {
   const db = memoryDb().seed();
-  const { orderId } = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'nasi-lemak', qty: 1 }], { paymentMethod: 'duitnow' }));
+  const { orderId } = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'avocado-toast', qty: 1 }], { paymentMethod: 'duitnow' }));
   const { paymentId } = await db.run(LOGIC.submitPaymentReference, { uid: 'c1' }, { orderId, reference: 'REF12345' });
   assert.equal(db.data.orders[orderId].paymentStatus, 'pending_verification');
   await assert.rejects(db.run(LOGIC.verifyPayment, { uid: 'c1' }, { paymentId, approve: true }), /Staff login/);
@@ -137,7 +137,7 @@ test('payments: DuitNow reference is NOT payment; only cashier verification or g
   await db.run(LOGIC.verifyPayment, { uid: cashier.uid, staff: cashier }, { paymentId, approve: true });
   assert.equal(db.data.orders[orderId].paymentStatus, 'paid');
   // gateway path is system-only and checks the amount
-  const o2 = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'nasi-lemak', qty: 1 }]));
+  const o2 = await db.run(LOGIC.placeOrder, { uid: 'c1' }, dineIn([{ menuId: 'avocado-toast', qty: 1 }]));
   await assert.rejects(db.run(markGatewayPaid, { uid: 'c1' }, { orderId: o2.orderId, amount: 20.99 }), /System only/);
   await assert.rejects(db.run(markGatewayPaid, { system: true }, { orderId: o2.orderId, amount: 1 }), /does not match/);
   await db.run(markGatewayPaid, { system: true }, { orderId: o2.orderId, amount: 20.99, reference: 'bill1' });
@@ -147,7 +147,7 @@ test('payments: DuitNow reference is NOT payment; only cashier verification or g
 test('loyalty: points awarded once when completed AND paid, vouchers redeem and apply at checkout', async () => {
   const db = memoryDb().seed();
   await db.run(LOGIC.registerCustomer, { uid: 'm1' }, { name: 'Abdul', email: 'a@x.my', phone: '+60123456789' });
-  const { orderId } = await db.run(LOGIC.placeOrder, { uid: 'm1' }, dineIn([{ menuId: 'wagyu-burger', qty: 2 }]));
+  const { orderId } = await db.run(LOGIC.placeOrder, { uid: 'm1' }, dineIn([{ menuId: 'big-breakfast', qty: 2 }]));
   for (const s of ['confirmed', 'preparing', 'ready', 'completed']) await db.run(LOGIC.updateOrderStatus, { uid: admin.uid, staff: admin }, { orderId, status: s });
   assert.equal(db.data.users.m1.points, 0, 'not paid yet');
   await db.run(LOGIC.recordPayment, { uid: cashier.uid, staff: cashier }, { orderId, method: 'cash', amountTendered: 100 });
@@ -160,11 +160,11 @@ test('loyalty: points awarded once when completed AND paid, vouchers redeem and 
   const before = db.data.users.m1.points;
   const { voucherId } = await db.run(LOGIC.redeemReward, { uid: 'm1' }, { rewardId: 'rw-rm5' });
   assert.equal(db.data.users.m1.points, before - 500);
-  const r = await db.run(LOGIC.placeOrder, { uid: 'm1' }, dineIn([{ menuId: 'wagyu-burger', qty: 1 }], { voucherId }));
+  const r = await db.run(LOGIC.placeOrder, { uid: 'm1' }, dineIn([{ menuId: 'big-breakfast', qty: 1 }], { voucherId }));
   assert.equal(db.data.orders[r.orderId].discount, 5);
   assert.equal(db.data.vouchers[voucherId].status, 'used');
-  await assert.rejects(db.run(LOGIC.placeOrder, { uid: 'm1' }, dineIn([{ menuId: 'wagyu-burger', qty: 1 }], { voucherId })), /no longer active/);
-  await assert.rejects(db.run(LOGIC.placeOrder, { uid: 'thief' }, dineIn([{ menuId: 'wagyu-burger', qty: 1 }], { voucherId })), /Voucher not found/);
+  await assert.rejects(db.run(LOGIC.placeOrder, { uid: 'm1' }, dineIn([{ menuId: 'big-breakfast', qty: 1 }], { voucherId })), /no longer active/);
+  await assert.rejects(db.run(LOGIC.placeOrder, { uid: 'thief' }, dineIn([{ menuId: 'big-breakfast', qty: 1 }], { voucherId })), /Voucher not found/);
   await assert.rejects(db.run(LOGIC.redeemReward, { uid: 'm1' }, { rewardId: 'rw-rm20' }), /tier|points/i);
 });
 
