@@ -250,6 +250,7 @@ function updateCartBar(bump, page) {
   const n = cartCount();
   bar.innerHTML = cartBar();
   bar.classList.toggle('hide', !n || p === 'checkout');
+  document.body.classList.toggle('has-cart', !bar.classList.contains('hide'));
   if (bump && n) { bar.classList.remove('bump'); void bar.offsetWidth; bar.classList.add('bump'); }
 }
 

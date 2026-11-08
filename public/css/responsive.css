@@ -1,0 +1,261 @@
+/* ==================================================================
+   SELAGI COFFEE – safe areas & responsive layer
+   Loaded last on every page. Handles notches / home indicators
+   (viewport-fit=cover), dynamic viewport height on mobile browsers,
+   touch ergonomics and the phone → tablet → desktop breakpoints.
+     phone   : < 768px
+     tablet  : 768px – 1199px
+     desktop : ≥ 1200px
+   ================================================================== */
+:root {
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --vh-full: 100vh;
+  /* customer column + floating chrome */
+  --shell-w: 560px;
+  --nav-h: 72px;
+  --nav-gap: max(12px, calc(var(--safe-b) + 6px));
+  --chrome-b: calc(var(--nav-h) + var(--nav-gap));
+}
+@supports (height: 100dvh) { :root { --vh-full: 100dvh; } }
+
+/* ---------------- global touch & scroll smoothness ---------------- */
+html { scroll-padding-top: calc(var(--safe-t) + 140px); }
+body { overscroll-behavior-x: none; text-rendering: optimizeLegibility; }
+a, button, label, input, select, textarea, [data-go], [data-item], [data-open], [data-tab] { touch-action: manipulation; }
+.h-scroll, .cat-chips, .badges, .table-wrap, .filter-chips, .tabs-mini { overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.modal-body, .notif-panel, .sidebar { overscroll-behavior: contain; }
+img { -webkit-user-drag: none; }
+@media (hover: none) {
+  .dish:hover .dish-img, .tile:hover { transform: none; box-shadow: var(--shadow-sm); }
+  .bottom-nav a:hover:not(.active) { color: #8e968f; }
+  .side-nav a:hover:not(.active) { background: transparent; color: #55615a; }
+  .side-nav a:hover:not(.active) .ic { transform: none; color: #7c877f; }
+}
+
+/* ---------------- shared overlays ---------------- */
+#splash { padding: var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l); }
+.toast-host { top: calc(12px + var(--safe-t)); width: min(420px, calc(100% - 32px - var(--safe-l) - var(--safe-r))); }
+.modal-wrap { padding: calc(16px + var(--safe-t)) calc(16px + var(--safe-r)) calc(16px + var(--safe-b)) calc(16px + var(--safe-l)); }
+.modal { max-height: calc(var(--vh-full) - 32px - var(--safe-t) - var(--safe-b)); }
+.modal-wrap.is-sheet { padding: calc(12px + var(--safe-t)) var(--safe-r) 0 var(--safe-l); }
+.modal-wrap.is-sheet .modal { max-height: calc(var(--vh-full) - 12px - var(--safe-t)); }
+.modal-wrap.is-sheet .modal { padding-bottom: var(--safe-b); }
+.modal-body { -webkit-overflow-scrolling: touch; }
+@media (min-width: 768px) {
+  /* tablets: sheets become centred cards instead of edge-to-edge drawers */
+  .modal-wrap.is-sheet { place-items: center; padding: calc(24px + var(--safe-t)) 24px calc(24px + var(--safe-b)); }
+  .modal-wrap.is-sheet .modal { width: min(600px, 100%); border-radius: 28px; transform: translateY(24px) scale(.98); max-height: calc(var(--vh-full) - 48px - var(--safe-t) - var(--safe-b)); }
+  .modal-wrap.is-sheet.show .modal { transform: none; }
+  .modal-wrap.is-sheet .sheet-handle { display: none; }
+  .modal-wrap.is-sheet .modal { padding-bottom: 0; }
+  .modal.wide { width: min(820px, 100%); }
+}
+
+/* ==================================================================
+   CUSTOMER
+   ================================================================== */
+body.customer { min-height: var(--vh-full); }
+.app-shell {
+  max-width: var(--shell-w); min-height: var(--vh-full);
+  padding-bottom: calc(var(--chrome-b) + 28px);
+  /* keep content clear of a landscape notch when the column touches the screen edge */
+  padding-left: max(0px, calc(var(--safe-l) - max(0px, (100vw - var(--shell-w)) / 2)));
+  padding-right: max(0px, calc(var(--safe-r) - max(0px, (100vw - var(--shell-w)) / 2)));
+  transition: padding-bottom var(--dur) var(--ease);
+}
+body.has-cart .app-shell { padding-bottom: calc(var(--chrome-b) + 100px); }
+.app-shell > .demo-banner { margin-top: calc(10px + var(--safe-t)); }
+
+/* status-bar aware tops (installed PWA uses a translucent status bar) */
+body.customer .hero { height: calc(470px + var(--safe-t)); }
+body.customer .hero-inner { padding-top: calc(30px + var(--safe-t)); }
+body.customer .hero-top { padding-top: calc(14px + var(--safe-t)); padding-left: calc(14px + var(--safe-l)); padding-right: calc(14px + var(--safe-r)); }
+.menu-top { padding-top: calc(14px + var(--safe-t)); }
+.page-head { padding-top: calc(16px + var(--safe-t)); }
+.rw-hero { padding-top: calc(22px + var(--safe-t)); }
+.app-shell > .demo-banner ~ .view .hero { height: 470px; }
+.app-shell > .demo-banner ~ .view .hero-inner { padding-top: 30px; }
+.app-shell > .demo-banner ~ .view .hero-top { padding-top: 14px; }
+.app-shell > .demo-banner ~ .view .rw-hero { padding-top: 22px; }
+.menu-section { scroll-margin-top: calc(140px + var(--safe-t)); content-visibility: auto; contain-intrinsic-size: auto 640px; }
+
+/* floating chrome: nav → cart bar → bell, stacked above the home indicator */
+.bottom-nav {
+  bottom: var(--nav-gap);
+  width: min(calc(var(--shell-w) - 20px), calc(100% - 24px - var(--safe-l) - var(--safe-r)));
+}
+.cart-bar {
+  bottom: calc(var(--chrome-b) + 10px);
+  width: min(calc(var(--shell-w) - 32px), calc(100% - 28px - var(--safe-l) - var(--safe-r)));
+  min-height: 58px;
+}
+.fab-bell {
+  bottom: calc(var(--chrome-b) + 24px);
+  /* sits inside the column's right edge on every screen size */
+  right: calc(max(0px, (100% - var(--shell-w)) / 2) + 14px + var(--safe-r));
+  transition: transform .2s var(--ease), bottom var(--dur) var(--ease);
+}
+body.has-cart .fab-bell { bottom: calc(var(--chrome-b) + 90px); }
+@media (max-width: 767px) {
+  /* smaller bell on phones */
+  .fab-bell { width: 52px; height: 52px; }
+}
+
+/* small phones */
+@media (max-width: 374px) {
+  .sheet-body { padding: 22px 14px 10px; }
+  .greet { font-size: 22px; }
+  .stat-card { padding: 14px; }
+  .stat-card .pts { font-size: 32px; }
+  .menu-grid { gap: 14px 10px; }
+  .svc-grid { grid-template-columns: repeat(2, 1fr); }
+  .tier-journey { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* landscape phones: shorter hero so content is reachable */
+@media (max-height: 500px) and (orientation: landscape) {
+  body.customer .hero, .app-shell > .demo-banner ~ .view .hero { height: calc(340px + var(--safe-t)); }
+  body.customer .hero .logo-mark { width: 84px !important; height: 84px !important; }
+  .hero-title { font-size: 34px; }
+  .hero-tagline { font-size: 22px; }
+}
+
+/* tablet: wider column, more columns, roomier cards */
+@media (min-width: 768px) {
+  :root { --shell-w: 760px; --nav-h: 76px; }
+  body.customer { background: radial-gradient(circle at 50% 0%, #efe7da, var(--beige)); }
+  .app-shell { box-shadow: 0 0 80px rgba(29,51,43,.10); }
+  body.customer .hero { height: calc(520px + var(--safe-t)); }
+  .app-shell > .demo-banner ~ .view .hero { height: 520px; }
+  .sheet-body { padding: 30px 28px 12px; }
+  .greet { font-size: 30px; }
+  .stat-pair, .action-tiles { gap: 16px; }
+  .menu-top { padding-left: 24px; padding-right: 24px; }
+  .cat-chips { margin-left: -24px; margin-right: -24px; padding-left: 24px; padding-right: 24px; }
+  .menu-section { padding: 22px 24px 6px; }
+  .menu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px 18px; }
+  .page-head { padding-left: 24px; padding-right: 24px; }
+  .page-pad { padding: 0 24px; }
+  .h-scroll { padding-left: 28px; padding-right: 28px; margin: 0 -28px; }
+  .promo { width: 46%; }
+  .feat-card { width: 180px; }
+  .member-card, .track-hero { margin-left: 24px; margin-right: 24px; }
+  .quick3 { margin: 0 24px; }
+  .rw-tabs { margin-left: 24px; margin-right: 24px; }
+  .bottom-nav a { font-size: 12.5px; }
+  .bottom-nav .ic { width: 25px; height: 25px; }
+}
+/* large tablet landscape / desktop */
+@media (min-width: 1100px) {
+  :root { --shell-w: 920px; }
+  .menu-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+/* ==================================================================
+   ADMIN
+   ================================================================== */
+body.admin .login-screen, .layout { min-height: var(--vh-full); }
+.login-form-wrap { padding: calc(32px + var(--safe-t)) calc(24px + var(--safe-r)) calc(32px + var(--safe-b)) calc(24px + var(--safe-l)); }
+.sidebar {
+  height: var(--vh-full);
+  padding-top: calc(18px + var(--safe-t));
+  padding-bottom: calc(18px + var(--safe-b));
+  padding-left: calc(14px + var(--safe-l));
+}
+body.side-rail .sidebar { padding-left: calc(12px + var(--safe-l)); }
+.topbar { padding-top: calc(14px + var(--safe-t)); padding-right: calc(28px + var(--safe-r)); min-height: calc(64px + var(--safe-t)); }
+.content { padding-bottom: calc(60px + var(--safe-b)); padding-right: calc(28px + var(--safe-r)); }
+.notif-panel { top: calc(68px + var(--safe-t)); right: calc(16px + var(--safe-r)); max-height: calc(var(--vh-full) - 100px - var(--safe-t) - var(--safe-b)); }
+.new-order-pop { right: calc(20px + var(--safe-r)); bottom: calc(20px + var(--safe-b)); }
+.table-wrap { border-radius: 14px; }
+table.data th:first-child, table.data td:first-child { padding-left: 16px; }
+
+/* touch screens: comfortable hit targets everywhere in the console */
+@media (pointer: coarse) {
+  .side-nav a { min-height: 46px; }
+  .icon-btn { min-width: 44px; min-height: 44px; }
+  .icon-btn.sm { min-width: 36px; min-height: 36px; }
+  .btn-sm { min-height: 38px; }
+  .btn-xs { min-height: 32px; }
+  .filter-chips button, .tabs-mini button { min-height: 36px; }
+  .input, select.input { min-height: 46px; font-size: 16px; } /* 16px stops iOS zoom-on-focus */
+}
+
+/* tablet */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .topbar { padding-left: 20px; padding-right: calc(20px + var(--safe-r)); }
+  .topbar h1 { font-size: 26px; }
+  .content { padding: 20px calc(20px + var(--safe-r)) calc(60px + var(--safe-b)) 20px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .grid-2, .grid-2.even { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .order-cards { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .menu-admin-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .tables-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  body.side-expanded .sidebar { top: 0; height: var(--vh-full); }
+}
+
+/* phone */
+@media (max-width: 767px) {
+  .sidebar { padding-top: calc(16px + var(--safe-t)); box-shadow: none; visibility: hidden; transition: transform var(--dur) var(--ease), visibility 0s linear var(--dur); }
+  body.side-open .sidebar { box-shadow: var(--shadow-lg); visibility: visible; transition: transform var(--dur) var(--ease), visibility 0s; }
+  .topbar { gap: 6px; padding: calc(8px + var(--safe-t)) calc(10px + var(--safe-r)) 8px calc(8px + var(--safe-l)); min-height: calc(56px + var(--safe-t)); }
+  .topbar .live { display: none; }
+  .content { padding: 14px calc(14px + var(--safe-r)) calc(60px + var(--safe-b)) calc(14px + var(--safe-l)); }
+  .grid-3 { grid-template-columns: 1fr; }
+  .panel { padding: 16px; border-radius: 18px; }
+  .panel-head h3 { font-size: 19px; }
+  /* toolbars stack into full-width controls; chip filters scroll sideways instead of wrapping */
+  .toolbar { gap: 8px; }
+  .toolbar .search-box { flex: 1 1 100%; max-width: none; }
+  .toolbar > .input, .toolbar > select { flex: 1 1 calc(50% - 4px); min-width: 0; }
+  .toolbar > .btn { flex: 1 1 auto; }
+  .filter-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-14px - var(--safe-r)) 0 calc(-14px - var(--safe-l)); padding: 2px calc(14px + var(--safe-r)) 4px calc(14px + var(--safe-l)); }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .filter-chips button { flex-shrink: 0; }
+  .tabs-mini { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .order-cards, .menu-admin-grid, .tables-grid { grid-template-columns: 1fr; gap: 12px; }
+  .detail-grid { grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+  .notif-panel { left: calc(12px + var(--safe-l)); right: calc(12px + var(--safe-r)); width: auto; top: calc(60px + var(--safe-t)); }
+  .new-order-pop { left: calc(12px + var(--safe-l)); right: calc(12px + var(--safe-r)); width: auto; bottom: calc(12px + var(--safe-b)); }
+  .modal-foot { flex-wrap: wrap; }
+  .modal-foot .btn { flex: 1 1 auto; }
+  .cust-head { flex-wrap: wrap; }
+  .var-row { grid-template-columns: 1fr 90px 40px; }
+}
+
+/* ==================================================================
+   KITCHEN DISPLAY
+   ================================================================== */
+body.kitchen { min-height: var(--vh-full); --kds-top-h: 64px; }
+.kds-top {
+  height: calc(var(--kds-top-h) + var(--safe-t));
+  padding-top: var(--safe-t); padding-bottom: 0;
+  padding-left: calc(18px + var(--safe-l));
+  padding-right: calc(18px + var(--safe-r));
+}
+.kds-seg { top: calc(var(--kds-top-h) + var(--safe-t)); margin-left: calc(14px + var(--safe-l)); margin-right: calc(14px + var(--safe-r)); }
+.kds-board {
+  min-height: calc(var(--vh-full) - var(--kds-top-h) - var(--safe-t) - 70px);
+  padding-left: calc(14px + var(--safe-l));
+  padding-right: calc(14px + var(--safe-r));
+  padding-bottom: calc(24px + var(--safe-b));
+}
+.ticket-foot .btn { min-height: 50px; }
+.ticket-item { min-height: 40px; }
+
+/* tablet: one stage at a time, tickets laid out two-up */
+@media (min-width: 701px) and (max-width: 1099px) {
+  .kds-col.show { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 12px; }
+  .kds-col.show > .kds-col-head, .kds-col.show > .kds-empty { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  body.kitchen { --kds-top-h: 60px; }
+  .kds-top { padding-left: calc(12px + var(--safe-l)); padding-right: calc(12px + var(--safe-r)); }
+  .kds-seg { margin-left: calc(10px + var(--safe-l)); margin-right: calc(10px + var(--safe-r)); }
+  .kds-board { padding-left: calc(10px + var(--safe-l)); padding-right: calc(10px + var(--safe-r)); }
+  .ticket-head .tbl { font-size: 20px; }
+}
