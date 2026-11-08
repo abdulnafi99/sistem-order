@@ -36,7 +36,7 @@ export function renderRewards(tab = 'earn') {
     ${['earn', 'redeem', 'vouchers'].map((k) => `<button data-go="#/rewards/${k}" class="${tab === k || (!tab && k === 'earn') ? 'active' : ''}">${k === 'vouchers' ? 'My Vouchers' : k[0].toUpperCase() + k.slice(1)}</button>`).join('')}
   </div>
   <div class="page-pad stack" style="margin-top:20px">
-    ${!p ? `<div class="card card-pad center"><h3>Join ${esc(s.restaurantName || 'Eden Hall')} Rewards</h3><p class="muted small mt-s">Free membership · points on every order · exclusive vouchers</p><div class="row mt" style="justify-content:center"><button class="btn btn-primary" data-action="register">Join free</button><button class="btn btn-ghost" data-action="login">Sign in</button></div></div>` : ''}
+    ${!p ? `<div class="card card-pad center"><h3>Join ${esc(s.restaurantName || 'SELAGI COFFEE')} Rewards</h3><p class="muted small mt-s">Free membership · points on every order · exclusive vouchers</p><div class="row mt" style="justify-content:center"><button class="btn btn-primary" data-action="register">Join free</button><button class="btn btn-ghost" data-action="login">Sign in</button></div></div>` : ''}
     ${tab === 'redeem' ? redeemTab(p, t) : tab === 'vouchers' ? vouchersTab() : earnTab(p, t)}
   </div>`;
 }
@@ -109,7 +109,7 @@ export function renderAccount(sub) {
   if (sub === 'favorites') return favoritesPage();
   if (!p) {
     return `<div class="page-head"><h1>Account</h1></div>
-    <div class="member-card" style="text-align:center"><div style="display:flex;justify-content:center">${logoMark(s, 64)}</div><h3 class="mt">${esc((s.restaurantName || 'Eden Hall').toUpperCase())} REWARDS</h3><p class="muted mt-s">Join free to earn points, unlock tiers and redeem rewards. Your current orders stay linked.</p>
+    <div class="member-card" style="text-align:center"><div style="display:flex;justify-content:center">${logoMark(s, 64)}</div><h3 class="mt">${esc((s.restaurantName || 'SELAGI COFFEE').toUpperCase())} REWARDS</h3><p class="muted mt-s">Join free to earn points, unlock tiers and redeem rewards. Your current orders stay linked.</p>
       <div class="row mt" style="justify-content:center"><button class="btn btn-gold" data-action="register">Join free</button><button class="btn btn-glass" data-action="login">Sign in</button></div></div>
     <div class="page-pad stack">${supportList()}</div>`;
   }
@@ -120,7 +120,7 @@ export function renderAccount(sub) {
   const unlocked = badges.filter((b) => b.pct >= 100).length;
   return `<div class="page-head"><h1>Account</h1><button class="icon-btn solid" data-action="logout" aria-label="Sign out">${icon('logout', 20)}</button></div>
   <div class="member-card">
-    <div class="row between"><div class="row">${logoMark(s, 52, 16)}<div><h3>${esc((s.restaurantName || 'Eden Hall').toUpperCase())}</h3><div class="xs muted">#${esc(p.memberNo)} · <span style="color:#5ee0a0">${icon('shield', 11)} Active</span></div></div></div><span class="tier-pill">${icon('award', 14)} ${esc(t.current.name.toUpperCase())}</span></div>
+    <div class="row between"><div class="row">${logoMark(s, 52, 16)}<div><h3>${esc((s.restaurantName || 'SELAGI COFFEE').toUpperCase())}</h3><div class="xs muted">#${esc(p.memberNo)} · <span style="color:#5ee0a0">${icon('shield', 11)} Active</span></div></div></div><span class="tier-pill">${icon('award', 14)} ${esc(t.current.name.toUpperCase())}</span></div>
     <div class="who" data-action="edit-profile"><div class="avatar">${esc(p.name[0] || 'A')}</div><div class="grow"><div class="row"><b style="font-size:18px">${esc(p.name.split(' ')[0])}</b><span class="verified">${icon('check', 10)} VERIFIED</span></div><div class="small muted ellipsis">${esc(p.email)}</div></div>${icon('chevron', 18)}</div>
     <div class="row between"><div><div class="xs muted" style="letter-spacing:.12em">VIP MEMBER NO.</div><b style="font-size:22px;letter-spacing:.04em">#${esc(p.memberNo)}</b></div>
       <div class="right" data-go="#/account/ledger" style="cursor:pointer"><div class="xs muted" style="letter-spacing:.12em">POINTS BALANCE</div><b style="font-size:28px">${(p.points || 0).toLocaleString()}</b> <span class="muted small">pts</span></div></div>
@@ -225,7 +225,7 @@ function openMemberQr() {
   openModal({
     title: 'Member QR', sheet: true,
     body: `<div class="center"><p class="muted">Show this to our cashier to identify your membership.</p>
-      <div style="display:inline-block;padding:14px;background:#fff;border-radius:20px;box-shadow:var(--shadow);margin:16px 0">${qrSvg(`EDENHALL-MEMBER:${p.memberNo}:${p.id}`, { size: 230 })}</div>
+      <div style="display:inline-block;padding:14px;background:#fff;border-radius:20px;box-shadow:var(--shadow);margin:16px 0">${qrSvg(`SELAGI-MEMBER:${p.memberNo}:${p.id}`, { size: 230 })}</div>
       <h3>#${esc(p.memberNo)}</h3><p class="small muted">${esc(p.name)}</p></div>`,
   });
 }

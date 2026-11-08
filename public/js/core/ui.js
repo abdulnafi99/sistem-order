@@ -42,6 +42,7 @@ export const TABLE_LABEL = { available: 'Available', occupied: 'Occupied', activ
 
 // ------------------------------------------------------------------ icons
 const P = {
+  cup: '<path d="M4 9h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 10.5h1.5a2.5 2.5 0 0 1 0 5H16.6"/><path d="M8.5 2.8c-.7 1 .7 1.8 0 2.8M12.5 2.8c-.7 1 .7 1.8 0 2.8"/><path d="M3.5 22h15"/>',
   home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
   menu: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/>',
   receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
@@ -210,7 +211,7 @@ export function chime(kind = 'new') {
 
 // ------------------------------------------------------------------ QR
 /** Returns an SVG string of a QR code (requires /vendor/qrcode.js). */
-export function qrSvg(text, { size = 220, margin = 2, dark = '#123D32', light = '#ffffff' } = {}) {
+export function qrSvg(text, { size = 220, margin = 2, dark = '#1D332B', light = '#ffffff' } = {}) {
   if (typeof window.qrcode !== 'function') return `<div class="muted">QR library not loaded</div>`;
   const qr = window.qrcode(0, 'M');
   qr.addData(text); qr.make();
@@ -249,16 +250,16 @@ export function printHtml(title, html, { width = null } = {}) {
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>
   <style>
     @page { margin: 14mm; ${width ? `size: ${width} auto;` : ''} }
-    body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#123D32;margin:0;padding:24px;font-size:13px}
-    h1,h2,h3{font-family:"Playfair Display",Georgia,serif;margin:0 0 6px} h1{font-size:24px}
+    body{font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1D332B;margin:0;padding:24px;font-size:13px}
+    h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;margin:0 0 6px} h1{font-size:24px}
     table{width:100%;border-collapse:collapse;margin:12px 0} th,td{text-align:left;padding:7px 8px;border-bottom:1px solid #e5e0d6;font-size:12px}
-    th{background:#F6F0E8;text-transform:uppercase;letter-spacing:.06em;font-size:10px} td.r,th.r{text-align:right}
+    th{background:#F5F0E7;text-transform:uppercase;letter-spacing:.06em;font-size:10px} td.r,th.r{text-align:right}
     .muted{color:#6b7a74}.row{display:flex;justify-content:space-between;gap:12px}.tot{font-weight:700;font-size:15px}
     .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.kpi{border:1px solid #e5e0d6;border-radius:10px;padding:10px}.kpi b{display:block;font-size:18px}
     .receipt{max-width:300px;margin:0 auto}.receipt td{border:0;padding:3px 0}.dash{border-top:1px dashed #999;margin:8px 0}
-    .center{text-align:center} .brand{color:#075B46}
+    .center{text-align:center} .brand{color:#344E41}
     @media print{.noprint{display:none}}
-  </style></head><body>${html}<div class="noprint" style="margin-top:24px;text-align:center"><button onclick="print()" style="padding:10px 18px;border-radius:10px;border:0;background:#075B46;color:#fff;font-weight:600">Print / Save as PDF</button></div>
+  </style></head><body>${html}<div class="noprint" style="margin-top:24px;text-align:center"><button onclick="print()" style="padding:10px 18px;border-radius:10px;border:0;background:#344E41;color:#fff;font-weight:600">Print / Save as PDF</button></div>
   <script>setTimeout(function(){window.print()},400)<\/script></body></html>`);
   w.document.close();
 }
@@ -266,7 +267,7 @@ export function printHtml(title, html, { width = null } = {}) {
 export function receiptHtml(order, settings = {}) {
   const lines = (order.items || []).map((l) => `<tr><td>${l.qty} × ${esc(l.name)}${l.variant ? `<br><span class="muted">${esc(l.variant.name)}</span>` : ''}${l.addons && l.addons.length ? `<br><span class="muted">+ ${l.addons.map((a) => esc(a.name)).join(', ')}</span>` : ''}</td><td class="r">${Number(l.lineTotal).toFixed(2)}</td></tr>`).join('');
   return `<div class="receipt">
-    <div class="center"><h2 class="brand">${esc(settings.restaurantName || 'Eden Hall')}</h2>
+    <div class="center"><h2 class="brand">${esc(settings.restaurantName || 'SELAGI COFFEE')}</h2>
     <div class="muted">${esc(settings.address || '')}<br>${esc(settings.phone || '')}</div></div>
     <div class="dash"></div>
     <table><tr><td>Order</td><td class="r"><b>${esc(order.orderNo)}</b></td></tr>
@@ -305,13 +306,10 @@ export function demoBanner(api) {
 
 // ------------------------------------------------------------------ brand
 export function logoSvg() {
-  return `<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor" font-family="Playfair Display, Georgia, serif" font-style="italic">
-    <text x="18" y="50" font-size="40" font-weight="600">E</text><text x="40" y="44" font-size="17" letter-spacing="1">DEN</text>
-    <text x="30" y="84" font-size="40" font-weight="600">H</text><text x="56" y="78" font-size="17" letter-spacing="1">ALL</text></g>
-    <path d="M14 56 q30 -6 70 2" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".7"/></svg>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(50 29) rotate(-28)"><ellipse rx="8.5" ry="12.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M0.5 -12 C -5.5 -4 5.5 4 -0.5 12" fill="none" stroke="currentColor" stroke-width="2"/></g><text x="50" y="66" text-anchor="middle" fill="currentColor" font-family="Cormorant Garamond, Georgia, serif" font-size="21" font-weight="700" letter-spacing="1.2">SELAGI</text><path d="M31 72.5 H69" stroke="#C7A66A" stroke-width="1.2"/><text x="51.5" y="82.5" text-anchor="middle" fill="currentColor" font-family="Poppins, Arial, sans-serif" font-size="7.4" font-weight="500" letter-spacing="3.2">COFFEE</text></svg>`;
 }
 export function logoMark(settings, size = 56, radius = null) {
   const r = radius == null ? Math.round(size * 0.26) : radius;
-  if (settings && settings.logo) return `<div class="logo-mark" style="width:${size}px;height:${size}px;border-radius:${r}px;overflow:hidden"><img src="${esc(settings.logo)}" alt="" style="width:100%;height:100%;object-fit:cover"></div>`;
+  if (settings && settings.logo) return `<div class="logo-mark" style="width:${size}px;height:${size}px;border-radius:${r}px;overflow:hidden"><img src="${esc(settings.logo)}" alt="${esc(settings.restaurantName || 'SELAGI COFFEE')} logo" style="width:100%;height:100%;object-fit:contain"></div>`;
   return `<div class="logo-mark" style="width:${size}px;height:${size}px;border-radius:${r}px">${logoSvg()}</div>`;
 }

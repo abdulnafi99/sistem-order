@@ -4,7 +4,7 @@
 const wrap = (bg, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
 <defs><radialGradient id="bg" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></radialGradient>
 <radialGradient id="pl" cx="45%" cy="40%" r="60%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e9e4dc"/></radialGradient>
-<filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#123D32" flood-opacity=".25"/></filter></defs>
+<filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#1D332B" flood-opacity=".25"/></filter></defs>
 <rect width="200" height="200" fill="url(#bg)"/>${inner}</svg>`;
 
 const plate = (dark = false) => dark
@@ -78,12 +78,12 @@ const ART = {
     <ellipse cx="100" cy="84" rx="42" ry="10" fill="${tone}"/>
     <path d="M90 84 q10-10 20 0 q-10 8-20 0z" fill="#f3e3c8" opacity=".9"/><path d="M96 84 q4-4 8 0" stroke="${tone}" stroke-width="2" fill="none"/>
     <path d="M84 60 q-6-10 2-18 M100 56 q-6-10 2-18 M116 60 q-6-10 2-18" stroke="#ffffff" stroke-width="3" fill="none" opacity=".6" stroke-linecap="round"/>`,
-  iced: (tone = '#7a4a2a', top = '#efe2cc') => `<ellipse cx="100" cy="160" rx="44" ry="10" fill="#123D32" opacity=".15"/>
+  iced: (tone = '#7a4a2a', top = '#efe2cc') => `<ellipse cx="100" cy="160" rx="44" ry="10" fill="#1D332B" opacity=".15"/>
     <path d="M66 52 h68 l-8 104 q-1 8-10 8 h-32 q-9 0-10-8z" fill="#ffffff" opacity=".55" stroke="#ffffff" stroke-width="2"/>
     <path d="M70 92 h60 l-5 62 q-1 6-8 6 h-34 q-7 0-8-6z" fill="${tone}"/>
     <path d="M68 70 h64 l-2 22 h-60z" fill="${top}"/>
     ${[[84, 82], [108, 76], [96, 100]].map(([x, y]) => `<rect x="${x}" y="${y}" width="16" height="16" rx="4" fill="#ffffff" opacity=".7" transform="rotate(15 ${x + 8} ${y + 8})"/>`).join('')}
-    <rect x="112" y="24" width="6" height="70" rx="3" fill="#D5B46A" transform="rotate(12 115 60)"/>`,
+    <rect x="112" y="24" width="6" height="70" rx="3" fill="#C7A66A" transform="rotate(12 115 60)"/>`,
   juice: () => ART.iced('#f08a24', '#ffc15e') + '<circle cx="138" cy="60" r="16" fill="#f7b733"/><circle cx="138" cy="60" r="11" fill="#ffd36e"/>',
   matcha: () => ART.iced('#6a9a3a', '#e9f0d8'),
   tea: () => ART.coffee('#b5651d'),

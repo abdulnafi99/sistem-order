@@ -1,5 +1,5 @@
-// Eden Hall service worker – app-shell caching + offline fallback.
-const VERSION = 'edenhall-v1';
+// SELAGI COFFEE service worker – app-shell caching + offline fallback.
+const VERSION = 'selagi-v2';
 const SHELL = [
   './', './index.html', './admin.html', './kitchen.html', './offline.html', './manifest.webmanifest',
   './css/base.css', './css/customer.css', './css/admin.css', './css/kitchen.css',

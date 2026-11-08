@@ -31,7 +31,7 @@ export async function createFirebaseBackend(scope, config) {
   const { getFunctions, httpsCallable } = fnMod;
   const { getStorage, ref, uploadBytes, getDownloadURL } = stMod;
 
-  const appName = `edenhall-${scope}`;
+  const appName = `selagi-${scope}`;
   const app = getApps().find((a) => a.name === appName) || initializeApp(config, appName);
   const auth = getAuth(app);
   let db;

@@ -1,13 +1,13 @@
 {
-  "name": "Eden Hall – Smart Ordering",
-  "short_name": "Eden Hall",
-  "description": "Scan, order and track your food at Eden Hall.",
+  "name": "SELAGI COFFEE – Smart Ordering",
+  "short_name": "SELAGI COFFEE",
+  "description": "Scan, order and track your food at SELAGI COFFEE.",
   "start_url": "./index.html#/",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#123D32",
-  "theme_color": "#123D32",
+  "background_color": "#1D332B",
+  "theme_color": "#1D332B",
   "categories": ["food", "lifestyle"],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
@@ -17,7 +17,7 @@
   ],
   "shortcuts": [
     { "name": "Menu", "url": "./index.html#/menu" },
-    { "name": "My Orders", "url": "./index.html#/orders" },
+    { "name": "Pesanan", "url": "./index.html#/orders" },
     { "name": "Kitchen Display", "url": "./kitchen.html" },
     { "name": "Admin", "url": "./admin.html" }
   ]

@@ -16,7 +16,7 @@ const live = (o) => o.status !== 'cancelled';
 // =================================================================== DASHBOARD
 let salesRange = 'daily';
 const dashboard = {
-  title: 'Dashboard',
+  title: 'Overview',
   render() {
     const t0 = dayStart(0); const y0 = dayStart(1);
     const today = A.orders.filter((o) => o.createdAt >= t0);
@@ -81,7 +81,7 @@ function salesChart() {
   }
   const now = new Date();
   data = Array.from({ length: 4 }, (_, i) => { const d = new Date(now.getFullYear(), now.getMonth() - (3 - i), 1); const e = new Date(d.getFullYear(), d.getMonth() + 1, 1); return { label: d.toLocaleDateString('en-MY', { month: 'short', year: '2-digit' }), value: valid.filter((o) => o.createdAt >= d.getTime() && o.createdAt < e.getTime()).reduce((a, o) => a + o.total, 0) }; });
-  return `${barChart(data, { prefix: 'RM', color: '#D5B46A' })}<p class="xs muted">Dashboard holds the last 120 days. Use Reports for older periods.</p>`;
+  return `${barChart(data, { prefix: 'RM', color: '#C7A66A' })}<p class="xs muted">Dashboard holds the last 120 days. Use Reports for older periods.</p>`;
 }
 
 function performance() {
@@ -91,11 +91,11 @@ function performance() {
   const avgPrep = prepTimes.length ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length) : null;
   const daily = Array.from({ length: 7 }, (_, i) => { const s = dayStart(6 - i); const e = s + 864e5; const d = wk.filter((o) => o.createdAt >= s && o.createdAt < e); return { label: new Date(s).toLocaleDateString('en-MY', { weekday: 'short' }), value: d.filter((o) => o.type === 'dine_in').length, value2: d.filter((o) => o.type === 'takeaway').length }; });
   return `${donutChart([
-    { label: 'Completed', value: by('completed'), color: '#075B46' }, { label: 'In progress', value: wk.filter((o) => ACTIVE.includes(o.status)).length, color: '#D5B46A' }, { label: 'Cancelled', value: by('cancelled'), color: '#c0392b' },
+    { label: 'Completed', value: by('completed'), color: '#344E41' }, { label: 'In progress', value: wk.filter((o) => ACTIVE.includes(o.status)).length, color: '#C7A66A' }, { label: 'Cancelled', value: by('cancelled'), color: '#c0392b' },
   ], { center: String(wk.length), sub: 'orders', size: 150, thickness: 22 })}
   <div class="row between small mt"><span class="muted">Avg kitchen time</span><b>${avgPrep == null ? '—' : `${avgPrep} min`}</b></div>
-  <div class="mt">${barChart(daily, { height: 130, color: '#075B46', color2: '#D5B46A' })}</div>
-  <div class="row small"><span class="legend-row"><i style="background:#075B46"></i>Dine-in</span><span class="legend-row"><i style="background:#D5B46A"></i>Takeaway</span></div>`;
+  <div class="mt">${barChart(daily, { height: 130, color: '#344E41', color2: '#C7A66A' })}</div>
+  <div class="row small"><span class="legend-row"><i style="background:#344E41"></i>Dine-in</span><span class="legend-row"><i style="background:#C7A66A"></i>Takeaway</span></div>`;
 }
 
 function paymentDonut(orders) {
@@ -116,7 +116,7 @@ export function topItems(orders, n = 10) {
 // =================================================================== ORDERS
 const of = { status: 'active', type: 'all', table: 'all', range: 'today', q: '' };
 const orders = {
-  title: 'Orders',
+  title: 'Live Orders',
   render(arg) {
     const t0 = dayStart(0);
     let list = A.orders;
@@ -432,15 +432,15 @@ export function tableUrl(t) {
   return `${base}?t=${encodeURIComponent(t.id)}&k=${encodeURIComponent(t.token || '')}`;
 }
 function qrPrintCard(t) {
-  return `<div style="width:300px;margin:0 auto 30px;text-align:center;border:2px solid #123D32;border-radius:24px;padding:24px;page-break-inside:avoid">
-    <h2 style="font-family:Georgia,serif;color:#075B46;margin:0">${esc(A.settings.restaurantName || 'Eden Hall')}</h2>
+  return `<div style="width:300px;margin:0 auto 30px;text-align:center;border:2px solid #1D332B;border-radius:24px;padding:24px;page-break-inside:avoid">
+    <h2 style="font-family:Georgia,serif;color:#344E41;margin:0">${esc(A.settings.restaurantName || 'SELAGI COFFEE')}</h2>
     <p class="muted" style="margin:4px 0 14px">Scan to view menu &amp; order</p>
     ${qrSvg(tableUrl(t), { size: 240 })}
     <h1 style="font-size:34px;margin:12px 0 0">${esc(t.name)}</h1><p class="muted">No app needed · Pay at counter or DuitNow</p></div>`;
 }
 
 const tables = {
-  title: 'Tables & QR',
+  title: 'Table & QR',
   render() {
     const sessionStats = (t) => {
       if (!t.sessionId) return null;

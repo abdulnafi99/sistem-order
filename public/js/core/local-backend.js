@@ -12,9 +12,9 @@ import { LOGIC, LogicError, ROLES, newTableToken, dayKey } from './server-logic.
 import { DEFAULT_SETTINGS, CATEGORIES, MENU, TABLES, REWARDS, DEMO_STAFF } from './seed.js';
 import { priceOrder } from './pricing.js';
 
-const KEY = 'edenhall_db_v1';
+const KEY = 'selagi_db_v1';
 const SESSION_KEYS = { customer: 'eh_customer_uid', staff: 'eh_staff_uid' };
-const chan = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('edenhall-db') : null;
+const chan = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('selagi-db') : null;
 
 let DB = null;
 const listeners = new Set();
@@ -117,7 +117,7 @@ function seedHistory(now) {
     const id = `demo-user-${i + 1}`;
     col('users')[id] = {
       id, uid: id, name: `${n} ${['Rahman', 'Aziz', 'Tan', 'Kumar', 'Ismail', 'Wong'][i]}`, email: `${n.toLowerCase()}@example.com`, phone: `+60 12-${300 + i}${1000 + i * 7}`,
-      points: 0, lifetimePoints: 0, tierId: 'classic', totalOrders: 0, totalSpent: 0, memberNo: `EH-${String(i + 1).padStart(4, '0')}`,
+      points: 0, lifetimePoints: 0, tierId: 'classic', totalOrders: 0, totalSpent: 0, memberNo: `SC-${String(i + 1).padStart(4, '0')}`,
       referralCode: `DEMO${i + 1}X${i + 7}Q`, referralCount: 0, referralPoints: 0, favorites: [], createdAt: now - (40 - i * 4) * 864e5, birthday: '', profileBonusClaimed: false,
     };
   });
@@ -145,7 +145,7 @@ function seedHistory(now) {
       const dk = dayKey(t, 8);
       const tbl = TABLES[Math.floor(rnd() * TABLES.length)];
       const order = {
-        id, orderNo: `EH-${dk.slice(2)}-${String(seq).padStart(3, '0')}`, type: dine ? 'dine_in' : 'takeaway',
+        id, orderNo: `SC-${dk.slice(2)}-${String(seq).padStart(3, '0')}`, type: dine ? 'dine_in' : 'takeaway',
         tableId: dine ? tbl.id : null, tableName: dine ? tbl.name : null, sessionId: null,
         customerUid: member || `guest-${id}`, customerName: user ? user.name : dine ? 'Guest' : names[Math.floor(rnd() * names.length)],
         customerPhone: user ? user.phone : '', isMember: !!user,

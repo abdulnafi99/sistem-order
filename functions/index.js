@@ -1,5 +1,5 @@
 // =====================================================================
-// Eden Hall – Cloud Functions (trusted backend)
+// SELAGI COFFEE – Cloud Functions (trusted backend)
 // ---------------------------------------------------------------------
 // Every callable runs the SAME business rules as the demo backend
 // (shared/server-logic.js, copied from public/js/core by `npm run sync`)
@@ -145,7 +145,7 @@ export const createOnlinePayment = onCall({ secrets: [BILLPLZ_API_KEY] }, async 
       amount: String(Math.round(order.total * 100)),            // amount always from the server-side order
       callback_url: webhook,
       redirect_url: String(returnUrl || ''),
-      description: `${settings.restaurantName || 'Eden Hall'} order ${order.orderNo}`.slice(0, 200),
+      description: `${settings.restaurantName || 'SELAGI COFFEE'} order ${order.orderNo}`.slice(0, 200),
       reference_1_label: 'Order ID',
       reference_1: order.id,
     });

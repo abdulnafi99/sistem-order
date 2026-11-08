@@ -1,5 +1,5 @@
 // =====================================================================
-// Eden Hall – Admin dashboard (entry, auth, layout, live data)
+// SELAGI COFFEE – Admin dashboard (entry, auth, layout, live data)
 // =====================================================================
 import { initApi } from '../core/api.js';
 import { hasPerm, ROLES } from '../core/server-logic.js';
@@ -19,19 +19,18 @@ const ALL_VIEWS = { ...VIEWS, ...VIEWS2 };
 
 const NAV = [
   ['Operations'],
-  ['dashboard', 'dashboard', 'Dashboard', 'dashboard'],
-  ['orders', 'receipt', 'Orders', 'orders'],
-  ['kitchen', 'chef', 'Kitchen Display', 'kitchen', 'kitchen.html'],
-  ['tables', 'qr', 'Tables & QR', 'tables'],
-  ['payments', 'wallet', 'Payments', 'payments'],
-  ['Catalogue'],
-  ['menu', 'menu', 'Menu', 'menu'],
-  ['rewards', 'gift', 'Rewards', 'rewards'],
+  ['dashboard', 'dashboard', 'Overview', 'dashboard'],
+  ['orders', 'receipt', 'Live Orders', 'orders'],
+  ['menu', 'menu', 'Menu Management', 'menu'],
+  ['tables', 'qr', 'Table & QR', 'tables'],
   ['People'],
   ['customers', 'users', 'Customers', 'customers'],
-  ['staff', 'staff', 'Staff', 'staff'],
-  ['Insights'],
-  ['reports', 'chart', 'Reports', 'reports'],
+  ['rewards', 'gift', 'Loyalty & Rewards', 'rewards'],
+  ['Finance'],
+  ['payments', 'wallet', 'Payments', 'payments'],
+  ['Team & Insights'],
+  ['staff', 'staff', 'Staff Management', 'staff'],
+  ['reports', 'chart', 'Sales Reports', 'reports'],
   ['settings', 'settings', 'Settings', 'settings'],
 ];
 
@@ -107,9 +106,9 @@ function newOrderAlert(o) {
 function renderLogin() {
   const s = A.settings;
   $('#root').innerHTML = `<div class="login-screen">
-    <div class="login-art"><div class="row">${logoMark(s, 56)}<div><b style="font-family:var(--font-serif);font-size:22px">${esc(s.restaurantName || 'Eden Hall')}</b><div class="xs" style="letter-spacing:.16em;color:var(--gold)">SMART ORDERING</div></div></div>
+    <div class="login-art"><div class="row">${logoMark(s, 56)}<div><b style="font-family:var(--font-serif);font-size:22px">${esc(s.restaurantName || 'SELAGI COFFEE')}</b><div class="xs" style="letter-spacing:.16em;color:var(--gold)">SMART ORDERING</div></div></div>
       <div><h1>Run your restaurant from one beautiful dashboard.</h1><p>Live orders, kitchen display, QR tables, payments, loyalty and reports – synchronised in real time.</p></div>
-      <p class="xs">© ${new Date().getFullYear()} ${esc(s.restaurantName || 'Eden Hall')}</p></div>
+      <p class="xs">© ${new Date().getFullYear()} ${esc(s.restaurantName || 'SELAGI COFFEE')}</p></div>
     <div class="login-form-wrap"><div class="login-card">
       ${demoBanner(A.api)}
       <h2>Staff sign in</h2><p class="muted mb">Admin, manager, cashier, kitchen & waiter accounts.</p>
@@ -165,7 +164,7 @@ function render(isNav) {
     bindChrome();
   }
   renderSidebar();
-  renderTopbar(ALL_VIEWS[v].title);
+  renderTopbar((NAV.find((n) => n[0] === v) || [])[2] || ALL_VIEWS[v].title);
 
   const content = $('#content');
   const scrollY = window.scrollY;
@@ -176,12 +175,14 @@ function render(isNav) {
   if (!changed && ALL_VIEWS[v].noLive && content.dataset.view === v) return;
   content.dataset.view = v;
   content.innerHTML = ALL_VIEWS[v].render(arg);
+  if (changed) { content.classList.remove('page-enter'); void content.offsetWidth; content.classList.add('page-enter'); }
   if (changed && isNav) window.scrollTo(0, 0); else window.scrollTo(0, scrollY);
   if (activeId) { const el = document.getElementById(activeId); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch { /* */ } } }
   ALL_VIEWS[v].bind && ALL_VIEWS[v].bind(content, arg);
-  document.body.classList.remove('side-open');
+  if (changed) document.body.classList.remove('side-open', 'side-expanded');
 }
 
+let sidebarFor = null;
 function renderSidebar() {
   const s = A.settings;
   const counts = {
@@ -189,23 +190,77 @@ function renderSidebar() {
     payments: A.payments.filter((p) => p.status === 'pending').length,
     tables: A.tables.filter((t) => t.status === 'waiting_payment').length,
   };
-  $('#sidebar').innerHTML = `<div class="brand">${logoMark(s, 44, 12)}<div><b>${esc(s.restaurantName || 'Eden Hall')}</b><span>Smart Ordering</span></div></div>
-    <nav class="side-nav">${NAV.map((n) => {
-      if (n.length === 1) return `<div class="side-label">${n[0]}</div>`;
-      const [key, ic, label, perm, href] = n;
-      if (!hasPerm(A.staff, perm)) return '';
-      return `<a href="${href || `#/${key}`}" class="${A.view === key ? 'active' : ''}" ${href ? 'target="_blank" rel="noopener"' : ''}>${icon(ic, 19)}<span>${label}</span>${counts[key] ? `<span class="count">${counts[key]}</span>` : ''}${href ? icon('external', 14) : ''}</a>`;
-    }).join('').replace(/(<div class="side-label">[^<]*<\/div>)(?=<div class="side-label">|$)/g, '')}</nav>
-    <div class="side-foot">
-      <a class="btn btn-sm btn-block" style="background:rgba(255,255,255,.06);color:#cfe0d8;margin-bottom:10px" href="index.html" target="_blank" rel="noopener">${icon('external', 15)} Open customer app</a>
-      <div class="side-user"><div class="avatar">${esc((A.staff.name || '?')[0])}</div><div class="grow"><b class="ellipsis">${esc(A.staff.name)}</b><span>${esc((ROLES[A.staff.role] || {}).name || A.staff.role)}</span></div><button class="icon-btn" id="logout" title="Sign out" style="color:#cfe0d8">${icon('logout', 18)}</button></div>
-    </div>`;
-  $('#logout').onclick = async () => { await A.api.call('logStaffActivity', { action: 'auth.logout', detail: 'Signed out' }).catch(() => {}); await A.api.auth.logout(); location.hash = ''; };
+  const side = $('#sidebar');
+  const key = `${A.staff.uid}|${A.staff.role}|${s.restaurantName || ''}|${s.logo || ''}`;
+  if (sidebarFor !== key || !$('.side-nav', side)) {
+    sidebarFor = key;
+    side.innerHTML = `<div class="brand">${logoMark(s, 44, 12)}<div class="brand-text"><b>${esc(s.restaurantName || 'SELAGI COFFEE')}</b><span>Admin Console</span></div>
+        <button class="icon-btn side-collapse" id="side-collapse" aria-label="Collapse sidebar" title="Collapse / expand">${icon('back', 18)}</button></div>
+      <nav class="side-nav" aria-label="Admin"><span class="side-glider" aria-hidden="true"></span>${NAV.map((n) => {
+        if (n.length === 1) return `<div class="side-label">${n[0]}</div>`;
+        const [k, ic, label, perm] = n;
+        if (!hasPerm(A.staff, perm)) return '';
+        return `<a href="#/${k}" data-view="${k}" title="${esc(label)}">${icon(ic, 19)}<span class="side-text">${esc(label)}</span><span class="count" hidden></span></a>`;
+      }).join('').replace(/(<div class="side-label">[^<]*<\/div>)(?=<div class="side-label">|$)/g, '')}</nav>
+      <div class="side-foot">
+        ${hasPerm(A.staff, 'kitchen') ? `<a class="side-link" href="kitchen.html" target="_blank" rel="noopener" title="Kitchen Display">${icon('chef', 17)}<span class="side-text">Kitchen Display</span></a>` : ''}
+        <a class="side-link" href="index.html" target="_blank" rel="noopener" title="Customer app">${icon('external', 17)}<span class="side-text">Customer app</span></a>
+        <div class="side-user"><div class="avatar">${esc((A.staff.name || '?')[0])}</div><div class="grow side-text"><b class="ellipsis">${esc(A.staff.name)}</b><span>${esc((ROLES[A.staff.role] || {}).name || A.staff.role)}</span></div><button class="icon-btn" id="logout" title="Sign out" aria-label="Sign out">${icon('logout', 18)}</button></div>
+      </div>`;
+    $('#logout').onclick = async () => { await A.api.call('logStaffActivity', { action: 'auth.logout', detail: 'Signed out' }).catch(() => {}); await A.api.auth.logout(); location.hash = ''; };
+    $('.side-nav', side).classList.add('no-anim');
+  }
+  $$('.side-nav a[data-view]', side).forEach((a) => {
+    const on = a.dataset.view === A.view;
+    a.classList.toggle('active', on);
+    a.setAttribute('aria-current', on ? 'page' : 'false');
+    const c = $('.count', a); const n = counts[a.dataset.view] || 0;
+    if (String(n || '') !== c.textContent) { c.textContent = n || ''; c.hidden = !n; if (n) { c.classList.remove('count-pop'); void c.offsetWidth; c.classList.add('count-pop'); } }
+  });
+  moveGlider();
 }
+
+/** Slides the active background + gold indicator to the active sidebar link. */
+function moveGlider() {
+  const nav = $('#sidebar .side-nav');
+  if (!nav) return;
+  const g = $('.side-glider', nav);
+  const a = $('a.active', nav);
+  if (!a) { g.style.opacity = '0'; return; }
+  g.style.opacity = '1';
+  g.style.height = `${a.offsetHeight}px`;
+  g.style.transform = `translateY(${a.offsetTop}px)`;
+  if (nav.classList.contains('no-anim')) requestAnimationFrame(() => requestAnimationFrame(() => nav.classList.remove('no-anim')));
+}
+
+// ---- sidebar modes: desktop = expandable, tablet = collapsible rail, mobile = drawer
+const mqMobile = window.matchMedia('(max-width: 767px)');
+const mqTablet = window.matchMedia('(min-width: 768px) and (max-width: 1199px)');
+function applySideMode() {
+  const b = document.body;
+  const mode = mqMobile.matches ? 'drawer' : mqTablet.matches ? 'tablet' : 'desktop';
+  b.dataset.side = mode;
+  const rail = (mode === 'tablet' && !b.classList.contains('side-expanded')) || (mode === 'desktop' && localStorage.getItem('sc_side_collapsed') === '1');
+  b.classList.toggle('side-rail', rail);
+  if (mode !== 'drawer') b.classList.remove('side-open');
+  if (mode !== 'tablet') b.classList.remove('side-expanded');
+  const btn = $('#side-collapse');
+  if (btn) btn.setAttribute('aria-label', rail ? 'Expand sidebar' : 'Collapse sidebar');
+  setTimeout(moveGlider, 360);
+}
+function toggleSide() {
+  const b = document.body;
+  if (b.dataset.side === 'drawer') b.classList.toggle('side-open');
+  else if (b.dataset.side === 'tablet') b.classList.toggle('side-expanded');
+  else localStorage.setItem('sc_side_collapsed', b.classList.contains('side-rail') ? '0' : '1');
+  applySideMode();
+}
+[mqMobile, mqTablet].forEach((m) => (m.addEventListener ? m.addEventListener('change', applySideMode) : m.addListener(applySideMode)));
+applySideMode();
 
 function renderTopbar(title) {
   const unread = A.notifications.filter((n) => !n.read).length;
-  $('#topbar').innerHTML = `<button class="icon-btn menu-toggle" id="side-toggle" aria-label="Menu">${icon('sidebar')}</button>
+  $('#topbar').innerHTML = `<button class="icon-btn menu-toggle" id="side-toggle" aria-label="Toggle navigation">${icon('sidebar')}</button>
     <h1>${esc(title)}</h1>
     <span class="live" title="Real-time sync active"><i></i> Live</span>
     <button class="icon-btn" id="sound-toggle" title="Sound alerts">${icon(A.soundOn ? 'volume' : 'mute', 20)}</button>
@@ -214,8 +269,9 @@ function renderTopbar(title) {
 
 function bindChrome() {
   document.addEventListener('click', (e) => {
-    if (e.target.closest('#side-toggle')) { document.body.classList.toggle('side-open'); return; }
-    if (document.body.classList.contains('side-open') && !e.target.closest('.sidebar')) document.body.classList.remove('side-open');
+    if (e.target.closest('#side-toggle') || e.target.closest('#side-collapse')) { toggleSide(); return; }
+    const b = document.body;
+    if ((b.classList.contains('side-open') || b.classList.contains('side-expanded')) && !e.target.closest('.sidebar')) { b.classList.remove('side-open', 'side-expanded'); applySideMode(); }
     if (e.target.closest('#sound-toggle')) {
       A.soundOn = !A.soundOn; localStorage.setItem('eh_admin_sound', A.soundOn ? '1' : '0');
       if (A.soundOn) { unlockAudio(); chime('tick'); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
