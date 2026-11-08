@@ -115,7 +115,34 @@ tests/logic.test.mjs ← ujian peraturan bisnes (node --test)
 2. **Authentication** → Sign-in method → aktifkan **Email/Password** dan **Anonymous**.
 3. Cipta **Firestore Database** (region `asia-southeast1` disyorkan) dan **Storage**.
 4. Project settings → *Your apps* → tambah Web app → salin config ke `public/js/config/firebase-config.js`.
-5. Pasang CLI & deploy:
+5. Isi Project ID dalam `.firebaserc` (`{ "projects": { "default": "<project-id>" } }`).
+6. Deploy – pilih **A** (GitHub Actions, disyorkan) atau **B** (dari komputer sendiri).
+
+### A. Deploy automatik dengan GitHub Actions
+
+Workflow `.github/workflows/firebase-deploy.yml` deploy rules, indexes, Storage rules, Cloud Functions dan Hosting setiap kali ada push ke `main`.
+
+**a) Cipta service account untuk deploy** – di <https://console.cloud.google.com/iam-admin/serviceaccounts?project=PROJECT_ID>:
+1. **Create service account**, nama `github-deploy`.
+2. Beri role berikut: **Firebase Admin**, **Cloud Functions Admin**, **Cloud Run Admin**, **Service Account User**, **Artifact Registry Administrator**, **Cloud Build Editor**, **Secret Manager Viewer**, **Service Usage Consumer**.
+3. Buka service account itu → **Keys → Add key → Create new key → JSON**. Fail JSON akan dimuat turun.
+
+**b) Simpan dalam GitHub** – repo → **Settings → Secrets and variables → Actions → New repository secret**:
+| Nama | Nilai |
+|---|---|
+| `FIREBASE_SERVICE_ACCOUNT` | Seluruh kandungan fail JSON tadi |
+| `ADMIN_EMAIL` | Email Super Admin pertama |
+| `ADMIN_PASSWORD` | Kata laluan Super Admin pertama (min 6 aksara) |
+
+Jangan commit fail JSON itu ke repo, dan padamkan salinan di komputer selepas disimpan dalam GitHub.
+
+**c) Deploy pertama + seed** – tab **Actions → Deploy to Firebase → Run workflow**, tandakan **seed**, kemudian **Run**. Langkah seed mencipta menu, meja, rewards, settings dan akaun Super Admin (selamat dijalankan semula; dokumen sedia ada tidak ditimpa). Selepas itu, setiap push ke `main` deploy secara automatik.
+
+Laman akan berada di `https://<project-id>.web.app` (customer), `/admin.html` dan `/kitchen.html`.
+
+Jika deploy gagal dengan ralat `permission denied` / `PERMISSION_DENIED`, log Actions akan menamakan role yang kurang – tambah role itu pada service account dan jalankan semula.
+
+### B. Deploy dari komputer sendiri
    ```bash
    npm i -g firebase-tools
    firebase login
@@ -123,13 +150,14 @@ tests/logic.test.mjs ← ujian peraturan bisnes (node --test)
    cd functions && npm install && cd ..
    npm run deploy                # rules, indexes, storage, functions, hosting
    ```
-6. Seed data awal & Super Admin pertama (service account: Project settings → Service accounts → Generate key):
+   Seed data awal & Super Admin pertama (service account: Project settings → Service accounts → Generate key):
    ```bash
    cd functions
    export GOOGLE_APPLICATION_CREDENTIALS=/path/service-account.json
    FIREBASE_PROJECT=your-project-id ADMIN_EMAIL=owner@kafe.my ADMIN_PASSWORD='KataLaluanKuat!' npm run seed
    ```
-7. Log masuk ke `admin.html`, kemas kini **Settings** (nama, logo, alamat, SST, DuitNow QR), **Menu** (gambar sebenar) dan **Tables & QR** → *Print all QR* untuk dilekat di meja. Jika domain pelanggan berbeza, isi *Public customer URL for QR codes*.
+### Selepas deploy
+Log masuk ke `admin.html`, kemas kini **Settings** (nama, logo, alamat, SST, DuitNow QR), **Menu** (gambar sebenar) dan **Tables & QR** → *Print all QR* untuk dilekat di meja. Jika domain pelanggan berbeza, isi *Public customer URL for QR codes*.
 
 ### Payment gateway (Billplz – FPX/kad)
 ```bash
@@ -141,6 +169,8 @@ BILLPLZ_SANDBOX=true          # false untuk live
 firebase deploy --only functions
 ```
 Di Billplz, aktifkan *X Signature*. Callback URL dijana automatik: `https://asia-southeast1-<project>.cloudfunctions.net/billplzWebhook`. Kemudian aktifkan *Online payment* dalam Admin → Settings.
+
+Jika guna GitHub Actions: selepas kedua-dua secret Billplz wujud dalam Secret Manager, tambah **variable** repo `BILLPLZ_ENABLED` = `true` (Settings → Secrets and variables → Actions → Variables). Sebelum itu, workflow sengaja melangkau fungsi `createOnlinePayment` dan `billplzWebhook` supaya deploy tidak gagal kerana secret belum wujud.
 
 ---
 

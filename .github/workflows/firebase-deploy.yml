@@ -1,0 +1,98 @@
+# Deploys Eden Hall to Firebase (rules, indexes, Storage rules, Cloud Functions, Hosting).
+#
+# Required GitHub configuration (repo Settings → Secrets and variables → Actions):
+#   Secret   FIREBASE_SERVICE_ACCOUNT  – JSON key of a deploy service account (see README §4)
+#   Secret   ADMIN_EMAIL, ADMIN_PASSWORD – only for the one-time "seed" run
+#   Variable BILLPLZ_ENABLED = true    – optional, only after Billplz secrets exist in Secret Manager
+#
+# Runs automatically on every push to main, or manually from the Actions tab
+# ("Run workflow", tick "seed" the first time to create the menu, tables and Super Admin).
+name: Deploy to Firebase
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Seed initial data and create the Super Admin (safe to re-run; existing docs are kept)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_TOOLS: firebase-tools@13.29.1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check Firebase configuration
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SA" ]; then
+            echo "::error::Secret FIREBASE_SERVICE_ACCOUNT is not set. See README section 4."
+            exit 1
+          fi
+          if [ ! -f .firebaserc ]; then
+            echo "::error::.firebaserc is missing (project ID not configured yet)."
+            exit 1
+          fi
+          if grep -q "apiKey: ''" public/js/config/firebase-config.js; then
+            echo "::error::public/js/config/firebase-config.js is still empty – the site would run in demo mode."
+            exit 1
+          fi
+
+      - name: Business-rule tests
+        run: npm test
+
+      - name: Install Cloud Functions dependencies
+        working-directory: functions
+        run: npm ci
+
+      - name: Write service account credentials
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/sa.json" >> "$GITHUB_ENV"
+
+      - name: Choose which functions to deploy
+        id: targets
+        run: |
+          # The Billplz functions need secrets in Secret Manager; skip them until enabled.
+          if [ "${{ vars.BILLPLZ_ENABLED }}" = "true" ]; then
+            echo "only=functions,firestore,storage,hosting" >> "$GITHUB_OUTPUT"
+          else
+            fns=$(grep -oE '^export const [A-Za-z]+' functions/index.js | awk '{print $3}' | grep -vE '^(createOnlinePayment|billplzWebhook)$' | sed 's/^/functions:/' | paste -sd, -)
+            echo "only=$fns,firestore,storage,hosting" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy
+        run: npx --yes "$FIREBASE_TOOLS" deploy --non-interactive --force --only "${{ steps.targets.outputs.only }}"
+
+      - name: Seed initial data
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.seed }}
+        working-directory: functions
+        env:
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        run: |
+          export FIREBASE_PROJECT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('../.firebaserc','utf8')).projects.default)")
+          node seed.mjs
+
+      - name: Remove credentials
+        if: always()
+        run: rm -f "$RUNNER_TEMP/sa.json"
