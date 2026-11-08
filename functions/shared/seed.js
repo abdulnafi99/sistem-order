@@ -39,27 +39,28 @@ export const DEFAULT_SETTINGS = {
   profileBonus: 75,
   promotions: [
     { id: 'p1', title: 'Single Origin of the Month', subtitle: 'Hand-brewed V60 · Ethiopia Yirgacheffe', badge: 'Brew Bar', color: '#344E41' },
-    { id: 'p2', title: 'Happy Hour Coffee', subtitle: '20% off all coffee · 3–5 PM', badge: 'Daily', color: '#5b4632' },
+    { id: 'p2', title: 'Coffee & Croissant', subtitle: 'Any latte + butter croissant · RM 18', badge: 'Morning', color: '#5b4632' },
     { id: 'p3', title: 'Double Points Weekend', subtitle: 'Earn 2× points every Sat & Sun', badge: 'Members', color: '#8a6d3b' },
   ],
 };
 
 export const CATEGORIES = [
-  { id: 'main', name: 'Main Course', icon: '🍽️', type: 'food', sort: 1 },
-  { id: 'western', name: 'Western Food', icon: '🍔', type: 'food', sort: 2 },
-  { id: 'local', name: 'Local Food', icon: '🍛', type: 'food', sort: 3 },
-  { id: 'snacks', name: 'Snacks', icon: '🍟', type: 'food', sort: 4 },
-  { id: 'desserts', name: 'Desserts', icon: '🍰', type: 'food', sort: 5 },
-  { id: 'beverages', name: 'Beverages', icon: '🥤', type: 'beverage', sort: 6 },
-  { id: 'coffee', name: 'Coffee', icon: '☕', type: 'beverage', sort: 7 },
-  { id: 'signature', name: 'Signature Drinks', icon: '🍹', type: 'beverage', sort: 8 },
+  { id: 'espresso', name: 'Espresso Bar', icon: '☕', type: 'beverage', sort: 1 },
+  { id: 'signature', name: 'Signature Lattes', icon: '✨', type: 'beverage', sort: 2 },
+  { id: 'manual', name: 'Manual Brew', icon: '🫖', type: 'beverage', sort: 3 },
+  { id: 'cold', name: 'Cold Brew & Iced', icon: '🧊', type: 'beverage', sort: 4 },
+  { id: 'noncoffee', name: 'Non-Coffee', icon: '🍵', type: 'beverage', sort: 5 },
+  { id: 'pastry', name: 'Pastries & Cakes', icon: '🥐', type: 'food', sort: 6 },
+  { id: 'bites', name: 'Brunch & Bites', icon: '🥪', type: 'food', sort: 7 },
+  { id: 'beans', name: 'Coffee Beans', icon: '🫘', type: 'retail', sort: 8 },
 ].map((c) => ({ ...c, active: true }));
 
-const sizes = [{ id: 'reg', name: 'Regular', price: 0 }, { id: 'lg', name: 'Large', price: 2 }];
+const sizes = [{ id: 'reg', name: 'Regular (8oz)', price: 0 }, { id: 'lg', name: 'Large (12oz)', price: 2 }];
 const temp = [{ id: 'hot', name: 'Hot', price: 0 }, { id: 'iced', name: 'Iced', price: 1 }];
-const doneness = [{ id: 'mr', name: 'Medium Rare', price: 0 }, { id: 'm', name: 'Medium', price: 0 }, { id: 'wd', name: 'Well Done', price: 0 }];
 const milk = [{ id: 'oat', name: 'Oat milk', price: 2 }, { id: 'shot', name: 'Extra shot', price: 2.5 }, { id: 'syrup', name: 'Vanilla syrup', price: 1.5 }];
-const sides = [{ id: 'egg', name: 'Fried egg', price: 2 }, { id: 'cheese', name: 'Extra cheese', price: 3 }, { id: 'fries', name: 'Side fries', price: 6 }];
+const brew = [{ id: 'v60', name: 'Hario V60', price: 0 }, { id: 'aeropress', name: 'AeroPress', price: 0 }, { id: 'chemex', name: 'Chemex (2 cups)', price: 8 }];
+const grind = [{ id: 'whole', name: 'Whole bean', price: 0 }, { id: 'filter', name: 'Ground – filter', price: 0 }, { id: 'espresso', name: 'Ground – espresso', price: 0 }];
+const bakery = [{ id: 'warm', name: 'Warmed up', price: 0 }, { id: 'butter', name: 'Salted butter & jam', price: 2 }];
 
 const M = (id, name, categoryId, price, image, description, extra = {}) => ({
   id, name, categoryId, price, image, description, available: true, featured: false, soldCount: 0,
@@ -67,30 +68,43 @@ const M = (id, name, categoryId, price, image, description, extra = {}) => ({
 });
 
 export const MENU = [
-  M('wagyu-burger', 'Wagyu Burger', 'western', 28, 'art:burger', 'Juicy wagyu patty, aged cheddar, caramelised onion and house sauce on a toasted brioche, served with fries.', { featured: true, addons: sides, tags: ['Bestseller'], soldCount: 42 }),
-  M('wagyu-sirloin', 'Wagyu Sirloin Steak', 'main', 99, 'art:steak', '250g wagyu sirloin, grilled asparagus, cherry tomatoes and black pepper jus.', { featured: true, variants: doneness, stockLeft: 6, tags: ['Chef pick'], soldCount: 12 }),
-  M('crispy-chicken', 'Crispy Chicken Chop', 'western', 20, 'art:chicken', 'Golden fried boneless chicken thigh with fries, coleslaw and mushroom sauce.', { addons: sides, soldCount: 38 }),
-  M('fish-chips', 'Fish and Chips', 'western', 25, 'art:fishchips', 'Beer-battered dory, chunky fries, tartar sauce and lemon.', { soldCount: 21 }),
-  M('char-bonara', 'Char-Bonara Chicken', 'main', 24, 'art:pasta', 'Smoky creamy carbonara with grilled chicken, beef bacon and parmesan.', { featured: true, addons: [{ id: 'parm', name: 'Extra parmesan', price: 2 }, { id: 'chk', name: 'Extra chicken', price: 5 }], soldCount: 30 }),
-  M('tomyam-seafood', 'Creamy Tomyam Seafood', 'main', 28, 'art:noodle', 'Spaghetti in a creamy tomyam sauce with prawns, mussels and squid.', { variants: [{ id: 'mild', name: 'Mild', price: 0 }, { id: 'spicy', name: 'Spicy', price: 0 }, { id: 'xspicy', name: 'Extra spicy', price: 0 }], soldCount: 26 }),
-  M('aglio-beef', 'Aglio Olio Beef', 'main', 24, 'art:pasta', 'Garlic and chilli olive oil spaghetti with sliced beef bacon.', { soldCount: 18 }),
-  M('nasi-lemak', 'Nasi Lemak Ayam Rempah', 'local', 18, 'art:nasi', 'Coconut rice, spiced fried chicken, sambal, egg, anchovies and peanuts.', { featured: true, addons: [{ id: 'egg', name: 'Extra egg', price: 2 }, { id: 'sambal', name: 'Extra sambal', price: 1.5 }], tags: ['Local fave'], soldCount: 55 }),
-  M('mee-goreng', 'Mee Goreng Mamak', 'local', 15, 'art:noodle', 'Wok-fried yellow noodles with prawns, tofu and egg.', { variants: [{ id: 'mild', name: 'Mild', price: 0 }, { id: 'spicy', name: 'Spicy', price: 0 }], soldCount: 22 }),
-  M('sup-tulang', 'Sup Tulang Merah', 'local', 22, 'art:soup', 'Slow-cooked beef bone in a rich red spiced broth with bread.', { soldCount: 9 }),
-  M('eggs-toast', 'Selagi Big Breakfast', 'main', 26, 'art:toast', 'Sourdough toast, sunny eggs, chicken sausage, hash brown and sautéed mushrooms.', { soldCount: 14 }),
-  M('truffle-fries', 'Truffle Fries', 'snacks', 14, 'art:fries', 'Shoestring fries tossed in truffle oil and parmesan.', { soldCount: 40 }),
-  M('buffalo-wings', 'Buffalo Wings (6pcs)', 'snacks', 18, 'art:wings', 'Spicy buffalo wings with blue cheese dip.', { soldCount: 19 }),
-  M('caesar', 'Grilled Chicken Caesar', 'snacks', 19, 'art:salad', 'Romaine, grilled chicken, croutons, parmesan and caesar dressing.', { soldCount: 7 }),
-  M('choc-cake', 'Dark Chocolate Cake', 'desserts', 14, 'art:cake', 'Rich layered dark chocolate cake with ganache.', { featured: true, soldCount: 16 }),
-  M('waffle', 'Berry Waffle', 'desserts', 16, 'art:waffle', 'Buttermilk waffle, vanilla ice cream and mixed berries.', { soldCount: 11 }),
-  M('latte', 'Café Latte', 'coffee', 11, 'art:coffee', 'Double shot espresso with silky steamed milk.', { variants: temp, addons: milk, soldCount: 60 }),
-  M('americano', 'Americano', 'coffee', 9, 'art:coffee', 'Bold espresso with hot water.', { variants: temp, addons: milk, soldCount: 33 }),
-  M('spanish-latte', 'Spanish Latte', 'coffee', 13, 'art:iced', 'Condensed-milk sweetened latte, served iced.', { variants: sizes, addons: milk, featured: true, soldCount: 47 }),
-  M('teh-tarik', 'Teh Tarik', 'beverages', 6, 'art:tea', 'Pulled milk tea, frothy and sweet.', { variants: temp, soldCount: 52 }),
-  M('orange-juice', 'Fresh Orange Juice', 'beverages', 12, 'art:juice', 'Freshly squeezed oranges, no sugar added.', { variants: sizes, soldCount: 15 }),
-  M('iced-matcha', 'Iced Matcha Latte', 'signature', 15, 'art:matcha', 'Ceremonial-grade matcha with fresh milk over ice.', { variants: sizes, addons: [{ id: 'oat', name: 'Oat milk', price: 2 }], featured: true, soldCount: 29 }),
-  M('selagi-sunset', 'Selagi Sunset', 'signature', 14, 'art:juice', 'Passion fruit, orange and sparkling soda with a grenadine sunset.', { tags: ['Signature'], soldCount: 24 }),
-  M('rose-bandung', 'Rose Bandung Float', 'signature', 12, 'art:iced', 'Rose syrup and milk with a scoop of vanilla ice cream.', { soldCount: 8 }),
+  // Espresso bar
+  M('espresso', 'Espresso', 'espresso', 7, 'art:espresso', 'Double ristretto of our Selagi House Blend – cocoa, caramel and a hint of red fruit.', { addons: [{ id: 'shot', name: 'Extra shot', price: 2.5 }], soldCount: 18 }),
+  M('americano', 'Americano', 'espresso', 9, 'art:coffee', 'Double espresso lengthened with hot water. Clean, bold and bright.', { variants: temp, addons: milk, soldCount: 33 }),
+  M('latte', 'Café Latte', 'espresso', 11, 'art:latte', 'Double shot espresso with silky steamed milk.', { variants: temp, addons: milk, tags: ['Bestseller'], soldCount: 60 }),
+  M('cappuccino', 'Cappuccino', 'espresso', 11, 'art:cappuccino', 'Equal parts espresso, steamed milk and velvety foam, dusted with cocoa.', { addons: milk, soldCount: 27 }),
+  M('flat-white', 'Flat White', 'espresso', 12, 'art:latte', 'Ristretto shots under a thin layer of micro-foam – stronger and smoother.', { addons: milk, featured: true, soldCount: 31 }),
+  M('mocha', 'Mocha', 'espresso', 13, 'art:mocha', 'Espresso, Belgian dark chocolate and steamed milk.', { variants: temp, addons: milk, soldCount: 15 }),
+  // Signature lattes
+  M('spanish-latte', 'Spanish Latte', 'signature', 13, 'art:icedlatte', 'Condensed-milk sweetened latte, served iced.', { variants: sizes, addons: milk, featured: true, tags: ['Signature'], soldCount: 47 }),
+  M('gula-melaka-latte', 'Gula Melaka Latte', 'signature', 14, 'art:icedlatte', 'House palm-sugar syrup, espresso and fresh milk – our local favourite.', { variants: temp, addons: milk, featured: true, tags: ['Signature'], soldCount: 52 }),
+  M('pandan-latte', 'Pandan Coconut Latte', 'signature', 14, 'art:latte', 'Fresh pandan, coconut milk and espresso. Fragrant and creamy.', { variants: temp, addons: milk, soldCount: 22 }),
+  M('sea-salt-caramel', 'Sea Salt Caramel Latte', 'signature', 15, 'art:icedlatte', 'Burnt caramel, a pinch of sea salt and a salted cream top.', { variants: temp, addons: milk, soldCount: 19 }),
+  M('selagi-cream', 'Selagi Cream Coffee', 'signature', 15, 'art:coldbrew', 'Our signature: cold brew topped with whipped vanilla-gula cream.', { variants: sizes, featured: true, tags: ['House special'], soldCount: 24 }),
+  // Manual brew
+  M('single-origin', 'Single Origin Pour Over', 'manual', 18, 'art:pourover', 'Ethiopia Yirgacheffe, washed – jasmine, bergamot and stone fruit. Brewed to order.', { variants: brew, stockLeft: 6, featured: true, tags: ['Brew Bar'], soldCount: 12 }),
+  M('house-pour-over', 'House Blend Pour Over', 'manual', 14, 'art:pourover', 'Brazil & Sumatra blend – chocolatey, round and comforting.', { variants: brew, soldCount: 9 }),
+  // Cold
+  M('cold-brew', 'Cold Brew', 'cold', 12, 'art:coldbrew', '18-hour steeped cold brew. Smooth, low acidity, naturally sweet.', { variants: sizes, soldCount: 28 }),
+  M('iced-shaken-espresso', 'Iced Shaken Espresso', 'cold', 13, 'art:icedlatte', 'Espresso shaken with brown sugar and ice, finished with oat milk.', { soldCount: 16 }),
+  M('espresso-tonic', 'Espresso Tonic', 'cold', 14, 'art:juice', 'Espresso over tonic water and orange peel. Bright and sparkling.', { soldCount: 11 }),
+  // Non-coffee
+  M('iced-matcha', 'Iced Matcha Latte', 'noncoffee', 15, 'art:matcha', 'Ceremonial-grade matcha with fresh milk over ice.', { variants: sizes, addons: [{ id: 'oat', name: 'Oat milk', price: 2 }], featured: true, soldCount: 29 }),
+  M('hot-chocolate', 'Dark Hot Chocolate', 'noncoffee', 12, 'art:mocha', '70% dark chocolate melted into steamed milk.', { variants: temp, soldCount: 13 }),
+  M('chai-latte', 'Masala Chai Latte', 'noncoffee', 12, 'art:tea', 'Spiced black tea brewed with milk – cinnamon, cardamom and ginger.', { variants: temp, soldCount: 10 }),
+  // Pastries & cakes
+  M('butter-croissant', 'Butter Croissant', 'pastry', 9, 'art:croissant', 'Flaky French butter croissant, baked every morning.', { addons: bakery, soldCount: 40 }),
+  M('almond-croissant', 'Almond Croissant', 'pastry', 12, 'art:croissant', 'Twice-baked with frangipane and toasted almonds.', { featured: true, soldCount: 21 }),
+  M('choc-cake', 'Dark Chocolate Cake', 'pastry', 14, 'art:cake', 'Rich layered dark chocolate cake with espresso ganache.', { soldCount: 16 }),
+  M('burnt-cheesecake', 'Basque Burnt Cheesecake', 'pastry', 15, 'art:cake', 'Caramelised top, molten creamy centre.', { featured: true, tags: ['Chef pick'], soldCount: 25 }),
+  M('cookie', 'Sea Salt Choc Chip Cookie', 'pastry', 7, 'art:cookie', 'Brown butter dough, dark chocolate chunks and flaky sea salt.', { soldCount: 34 }),
+  // Brunch & bites
+  M('avocado-toast', 'Avocado Sourdough Toast', 'bites', 18, 'art:toast', 'Smashed avocado, soft egg, chilli flakes and lime on sourdough.', { addons: [{ id: 'egg', name: 'Extra egg', price: 2 }, { id: 'feta', name: 'Feta cheese', price: 3 }], soldCount: 26 }),
+  M('big-breakfast', 'Selagi Big Breakfast', 'bites', 26, 'art:toast', 'Sourdough toast, sunny eggs, chicken sausage, hash brown and sautéed mushrooms.', { addons: [{ id: 'egg', name: 'Extra egg', price: 2 }, { id: 'avo', name: 'Avocado', price: 4 }], soldCount: 14 }),
+  M('croffle', 'Brown Sugar Croffle', 'bites', 14, 'art:waffle', 'Croissant waffle with brown sugar glaze and vanilla ice cream.', { soldCount: 18 }),
+  // Beans (retail)
+  M('house-blend-beans', 'Selagi House Blend (250g)', 'beans', 48, 'art:beans', 'Medium roast · Brazil & Sumatra · chocolate, caramel, toasted nuts.', { variants: grind, soldCount: 6 }),
+  M('ethiopia-beans', 'Ethiopia Yirgacheffe (200g)', 'beans', 62, 'art:beans', 'Light roast · jasmine, bergamot, peach. For filter brewing.', { variants: grind, stockLeft: 8, soldCount: 3 }),
 ];
 
 export const TABLES = ['01', '02', '03', '04', '05', '06', 'Bar 1', 'Bar 2'].map((n, i) => ({
@@ -108,7 +122,7 @@ export const REWARDS = [
   { id: 'rw-rm5', name: 'RM5 Off', description: 'RM5 off any order above RM25.', cost: 500, type: 'amount', value: 5, minSpend: 25, icon: '🎟️', validDays: 30, active: true },
   { id: 'rw-coffee', name: 'Free Café Latte', description: 'One free Café Latte (regular).', cost: 900, type: 'item', value: 0, menuId: 'latte', itemName: 'Café Latte', minSpend: 0, icon: '☕', validDays: 30, active: true },
   { id: 'rw-10pct', name: '10% Off Bill', description: '10% off your total, max RM20.', cost: 1500, type: 'percent', value: 10, maxDiscount: 20, minSpend: 40, icon: '💚', validDays: 30, active: true },
-  { id: 'rw-cake', name: 'Free Chocolate Cake', description: 'A slice of our dark chocolate cake on us.', cost: 1200, type: 'item', value: 0, menuId: 'choc-cake', itemName: 'Dark Chocolate Cake', minSpend: 0, icon: '🍰', validDays: 30, active: true },
+  { id: 'rw-cake', name: 'Free Croissant', description: 'A butter croissant on us, fresh from the oven.', cost: 1200, type: 'item', value: 0, menuId: 'butter-croissant', itemName: 'Butter Croissant', minSpend: 0, icon: '🥐', validDays: 30, active: true },
   { id: 'rw-rm20', name: 'RM20 Off', description: 'RM20 off orders above RM80. Gold & above.', cost: 3000, type: 'amount', value: 20, minSpend: 80, minTier: 'gold', icon: '👑', validDays: 30, active: true },
 ];
 
