@@ -259,3 +259,58 @@ body.kitchen { min-height: var(--vh-full); --kds-top-h: 64px; }
   .kds-board { padding-left: calc(10px + var(--safe-l)); padding-right: calc(10px + var(--safe-r)); }
   .ticket-head .tbl { font-size: 20px; }
 }
+
+/* ==================================================================
+   Overflow hardening (audit: 320–1180px, phone & tablet, with insets)
+   ================================================================== */
+/* admin sidebar widths include a landscape notch so its content is never squeezed */
+.layout { --side-w: calc(272px + var(--safe-l)); }
+body.side-rail .layout { --side-w: calc(84px + var(--safe-l)); }
+@media (min-width: 768px) and (max-width: 1199px) {
+  .layout { --side-w: calc(84px + var(--safe-l)); }
+  body.side-expanded .sidebar { width: calc(272px + var(--safe-l)); }
+}
+@media (max-width: 767px) { .sidebar { width: calc(min(280px, 84vw) + var(--safe-l)); } }
+.sidebar .brand, .side-user { min-width: 0; }
+
+/* panel headers & action rows wrap instead of pushing buttons off-screen */
+.panel-head > .row, .panel-head > div:last-child { flex-wrap: wrap; justify-content: flex-end; }
+.toolbar, .row.wrap { min-width: 0; }
+.modal-body { overflow-x: auto; }
+.m-card .m-foot { flex-wrap: wrap; }
+.m-card .m-foot .grow { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (min-width: 768px) and (max-width: 1199px) { .menu-admin-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); } }
+
+/* customer: long words never break cards */
+.badge-item { width: 90px; }
+.badge-item b { font-size: 11.5px; overflow-wrap: anywhere; line-height: 1.25; }
+.card h4, .card b, .card p { overflow-wrap: anywhere; }
+@media (max-width: 374px) {
+  .card-pad > .row, .earn-card, .invite-card { flex-wrap: wrap; }
+  .earn-card .grow, .invite-card .grow { min-width: 0; flex-basis: calc(100% - 70px); }
+}
+
+/* kitchen header fits 320px */
+@media (max-width: 420px) {
+  .sound-warn .sw-text { display: none; }
+  .sound-warn { padding: 8px 10px; }
+}
+@media (max-width: 360px) {
+  .kds-top h1 { display: none; }
+  .kds-top { gap: 6px; }
+  .kds-top .clock { font-size: 15px; }
+}
+/* rail mode resets the sidebar padding – keep the status-bar / home-indicator insets */
+body.side-rail .sidebar { padding-top: calc(18px + var(--safe-t)); padding-bottom: calc(18px + var(--safe-b)); }
+@media (max-width: 374px) { .card-pad > .row > .grow { min-width: 60%; } }
+/* KDS tickets in narrow 4-column boards: header wraps instead of clipping the timer */
+.ticket-head { flex-wrap: wrap; row-gap: 6px; }
+.ticket-head > div:first-child { min-width: 0; flex: 1 1 120px; }
+.ticket-head .tbl, .ticket-head .meta { overflow-wrap: anywhere; }
+/* sidebar sections never shrink when the screen is short (landscape phones) – the sidebar scrolls instead */
+.sidebar > * { flex-shrink: 0; }
+/* phone: data tables keep readable columns and scroll sideways inside their card */
+@media (max-width: 767px) {
+  .table-wrap > table.data { min-width: 560px; }
+  .table-wrap > table.data td.small { min-width: 160px; }
+}

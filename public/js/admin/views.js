@@ -197,9 +197,9 @@ export function openOrder(id) {
         ${o.pickup && o.pickup.date ? `<div><span>Pickup</span>${esc(o.pickup.date)} ${esc(o.pickup.time)}</div>` : ''}
         <div><span>Payment</span>${esc(METHOD_LABEL[o.paymentMethod] || o.paymentMethod)}${o.paymentRef ? ` · ${esc(o.paymentRef)}` : ''}</div>
       </div>
-      <table class="data"><thead><tr><th>Item</th><th>Qty</th><th class="right">Amount</th></tr></thead><tbody>
+      <div class="table-wrap"><table class="data"><thead><tr><th>Item</th><th>Qty</th><th class="right">Amount</th></tr></thead><tbody>
       ${o.items.map((l) => `<tr><td><b>${esc(l.name)}</b>${l.variant ? `<div class="xs muted">${esc(l.variant.name)}</div>` : ''}${l.addons && l.addons.length ? `<div class="xs muted">+ ${l.addons.map((a) => `${esc(a.name)} (${rm(a.price)})`).join(', ')}</div>` : ''}${l.note ? `<div class="xs" style="color:#b5681a">“${esc(l.note)}”</div>` : ''}</td><td>${l.qty} × ${rm(l.unitPrice)}</td><td class="right">${rm(l.lineTotal)}</td></tr>`).join('')}
-      </tbody></table>
+      </tbody></table></div>
       ${o.note ? `<p class="small mt-s" style="background:var(--warn-soft);padding:8px 10px;border-radius:10px">📝 ${esc(o.note)}</p>` : ''}
       <div style="max-width:300px;margin-left:auto" class="mt-s small">
         <div class="row between"><span>Subtotal</span><span>${rm(o.subtotal)}</span></div>
@@ -402,10 +402,10 @@ function menuForm(m) {
 }
 
 function categoriesModal() {
-  const body = () => `<table class="data"><thead><tr><th>Icon</th><th>Name</th><th>Type</th><th>Order</th><th>Items</th><th></th></tr></thead><tbody>
+  const body = () => `<div class="table-wrap"><table class="data"><thead><tr><th>Icon</th><th>Name</th><th>Type</th><th>Order</th><th>Items</th><th></th></tr></thead><tbody>
     ${A.categories.map((c) => `<tr data-cid="${esc(c.id)}"><td><input class="input" style="width:56px;padding:8px" value="${esc(c.icon || '')}" data-k="icon"></td><td><input class="input" value="${esc(c.name)}" data-k="name"></td><td><select class="input" data-k="type"><option value="food" ${c.type === 'food' ? 'selected' : ''}>Food</option><option value="beverage" ${c.type === 'beverage' ? 'selected' : ''}>Beverage</option></select></td><td><input class="input" type="number" style="width:70px" value="${c.sort || 0}" data-k="sort"></td><td>${A.menu.filter((m) => m.categoryId === c.id).length}</td><td class="row"><button class="btn btn-xs btn-primary" data-save-cat>Save</button><button class="icon-btn sm" data-del-cat style="color:var(--danger)">${icon('trash', 15)}</button></td></tr>`).join('')}
     <tr data-cid=""><td><input class="input" style="width:56px;padding:8px" placeholder="🍜" data-k="icon"></td><td><input class="input" placeholder="New category" data-k="name"></td><td><select class="input" data-k="type"><option value="food">Food</option><option value="beverage">Beverage</option></select></td><td><input class="input" type="number" style="width:70px" value="${A.categories.length + 1}" data-k="sort"></td><td></td><td><button class="btn btn-xs btn-gold" data-save-cat>Add</button></td></tr>
-    </tbody></table>`;
+    </tbody></table></div>`;
   openModal({
     title: 'Categories', wide: true, body: body(),
     onOpen: (el) => el.addEventListener('click', async (e) => {
