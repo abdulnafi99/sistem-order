@@ -97,7 +97,7 @@ function render() {
     bind();
     $('#ktabs').classList.add('no-anim');
   }
-  $('#sound-slot').innerHTML = K.soundReady ? `<button class="icon-btn" id="test-sound" title="Test sound">${icon('volume', 20)}</button>` : `<button class="sound-warn" id="enable-sound">${icon('volume', 16)} Tap to enable sound</button>`;
+  $('#sound-slot').innerHTML = K.soundReady ? `<button class="icon-btn" id="test-sound" title="Test sound">${icon('volume', 20)}</button>` : `<button class="sound-warn" id="enable-sound" aria-label="Tap to enable sound">${icon('volume', 16)} <span class="sw-text">Tap to enable sound</span></button>`;
   const late = K.active.filter((o) => minutes(o) >= 15 && o.status !== 'ready').length;
   $('#kstats').innerHTML = `<span>Active <b>${K.active.length}</b></span><span>·</span><span>Late <b style="color:${late ? '#ff8a80' : '#fff'}">${late}</b></span><span>·</span><span>Done today <b>${K.done.length}</b></span>`;
   $('#board').innerHTML = COLS.map((c) => {
