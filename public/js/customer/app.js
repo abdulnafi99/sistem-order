@@ -1,5 +1,5 @@
 // =====================================================================
-// SELAGI COFFEE – Customer PWA (entry)
+// TAPJERR.io – Customer PWA (entry)
 // Navigation: hash routes (no full reloads) + floating bottom nav with a sliding active pill.
 // Scan QR → Browse Menu → Add to Cart → Checkout → Track Order
 // =====================================================================
@@ -7,7 +7,7 @@ import { initApi } from '../core/api.js';
 import { menuImage } from '../core/art.js';
 import {
   $, $$, esc, rm, icon, toast, openModal, errMsg, greeting, timeAgo, chime, unlockAudio,
-  registerSW, hideSplash, demoBanner, logoMark, STATUS_LABEL, copyText, formData,
+  registerSW, hideSplash, demoBanner, logoMark, STATUS_LABEL, copyText, formData, poweredBy,
 } from '../core/ui.js';
 import { S, bus, emit, loadLocal, setTable, go, cartCount, isMember, profile, tierInfo, menuById } from './state.js';
 import { renderMenu, openItem, openCart, renderCheckout, cartBar } from './menu.js';
@@ -381,7 +381,8 @@ function renderHome() {
       <div class="ic-box">${icon('download', 22)}</div>
       <div class="grow"><h4 style="font-family:var(--font-sans);font-weight:800">Add to Home Screen</h4><p class="small muted">${isIOS ? 'Tap Share → Add to Home Screen' : 'For 1-tap ordering next time'}</p></div>${icon('chevron', 18)}
     </section>` : ''}
-    <p class="center xs muted mt" style="padding-bottom:10px">${esc(s.address || '')}<br>${esc(s.openingHours || '')}</p>
+    <p class="center xs muted mt">${esc(s.address || '')}<br>${esc(s.openingHours || '')}</p>
+    ${poweredBy('mt-s')}<div style="height:10px"></div>
   </div>`;
 }
 

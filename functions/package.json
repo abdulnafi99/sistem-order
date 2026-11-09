@@ -1,6 +1,6 @@
 {
-  "name": "selagi-functions",
-  "description": "SELAGI COFFEE Smart Ordering – trusted backend (Cloud Functions for Firebase)",
+  "name": "tapjerr-functions",
+  "description": "TAPJERR.io – trusted backend (Cloud Functions for Firebase)",
   "type": "module",
   "main": "index.js",
   "engines": { "node": "22" },

@@ -1,5 +1,5 @@
 // =====================================================================
-// SELAGI COFFEE – Cloud Functions (trusted backend)
+// TAPJERR.io – Cloud Functions (trusted backend)
 // ---------------------------------------------------------------------
 // Every callable runs the SAME business rules as the demo backend
 // (shared/server-logic.js, copied from public/js/core by `npm run sync`)

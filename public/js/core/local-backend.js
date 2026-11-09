@@ -12,9 +12,9 @@ import { LOGIC, LogicError, ROLES, newTableToken, dayKey } from './server-logic.
 import { DEFAULT_SETTINGS, CATEGORIES, MENU, TABLES, REWARDS, DEMO_STAFF } from './seed.js';
 import { priceOrder } from './pricing.js';
 
-const KEY = 'selagi_db_v2';
+const KEY = 'tapjerr_demo_v1';
 const SESSION_KEYS = { customer: 'eh_customer_uid', staff: 'eh_staff_uid' };
-const chan = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('selagi-db') : null;
+const chan = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('tapjerr-db') : null;
 
 let DB = null;
 const listeners = new Set();

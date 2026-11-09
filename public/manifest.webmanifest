@@ -1,7 +1,7 @@
 {
-  "name": "SELAGI COFFEE – Smart Ordering",
-  "short_name": "SELAGI COFFEE",
-  "description": "Scan, order and track your food at SELAGI COFFEE.",
+  "name": "TAPJERR.io – Smart QR Ordering",
+  "short_name": "TAPJERR.io",
+  "description": "Scan the table QR, order and track your food – powered by TAPJERR.io.",
   "start_url": "./index.html#/",
   "scope": "./",
   "display": "standalone",

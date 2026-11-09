@@ -1,5 +1,5 @@
 // =====================================================================
-// SELAGI COFFEE – Server logic (trusted business rules)
+// TAPJERR.io – Server logic (trusted business rules)
 // ---------------------------------------------------------------------
 // This module is executed in a TRUSTED context only:
 //   • Firebase Cloud Functions (production) – see functions/index.js

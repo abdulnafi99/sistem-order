@@ -1,4 +1,6 @@
-# SELAGI COFFEE – Smart QR Ordering & Management System
+# TAPJERR.io – Smart QR Ordering & Management System
+
+**TAPJERR.io** ialah platform pesanan QR untuk kafe & restoran. Demo menggunakan kafe contoh **SELAGI COFFEE** (nama, logo, menu dan alamat kafe boleh ditukar di *Admin → Settings*).
 
 Aplikasi web **PWA** untuk restoran/kafe: pelanggan **scan QR di meja → lihat menu → tambah ke cart → checkout → jejak pesanan**, manakala pesanan masuk terus ke **Admin Dashboard** dan **Kitchen Display** secara *real-time*.
 
@@ -14,11 +16,13 @@ Dibina dengan **HTML5 + Vanilla CSS + Vanilla JavaScript** (tiada React/Vue/Boot
 
 Laman demo diterbitkan automatik ke GitHub Pages oleh `.github/workflows/pages-demo.yml` setiap kali ada push ke `main`. Ia sentiasa berjalan dalam **Demo mode**: setiap pelawat mendapat data contoh sendiri dalam browser mereka, dan perubahan seorang pelawat tidak kelihatan kepada pelawat lain. Persediaan sekali sahaja: repo **Settings → Pages → Source: GitHub Actions**.
 
-## Identiti & UI (SELAGI COFFEE)
+## Identiti & UI
 
+- **Jenama platform:** TAPJERR.io – logo apl, splash, ikon PWA, konsol admin & dapur, banner demo dan "Powered by TAPJERR.io" pada aplikasi pelanggan & resit.
+- **Jenama kafe (contoh):** SELAGI COFFEE – nama, logo, hero, menu dan resit setiap kafe datang dari *Settings* kafe itu.
 - **Palet:** Moss Green `#344E41`, Dark Green `#1D332B`, Cream `#F5F0E7`, Warm Beige `#E9DFD0`, Gold `#C7A66A`, Text `#28342E` – ditakrif sebagai CSS variables dalam `public/css/base.css`.
 - **Tipografi:** Cormorant Garamond (tajuk & headline promosi), Poppins (menu, harga, dashboard).
-- **Logo:** placeholder SELAGI COFFEE terbina dalam; admin boleh muat naik logo rasmi di *Settings → Branding* (dipaparkan `object-fit: contain`, tidak diregang).
+- **Logo kafe:** placeholder SELAGI COFFEE terbina dalam; admin boleh muat naik logo rasmi di *Settings → Branding* (dipaparkan `object-fit: contain`, tidak diregang).
 - **Navigasi pelanggan:** Singgah · Menu · Pesanan · Rewards · Account – floating pill dengan sliding indicator.
 - **Admin:** sidebar (desktop boleh expand/collapse, tablet = icon rail, mobile = drawer) dengan latar aktif moss yang meluncur.
 - **Kitchen Display:** segmented tabs New Orders · Preparing · Ready · Completed dengan counter beranimasi.

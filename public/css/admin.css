@@ -202,3 +202,8 @@ body.side-rail .side-nav { gap: 4px; }
 .settings-section { margin-bottom: 18px; }
 .settings-section h3 { font-family: var(--font-serif); font-size: 19px; margin-bottom: 4px; }
 .pager { display: flex; gap: 8px; justify-content: flex-end; align-items: center; margin-top: 12px; }
+.side-foot .powered-by { margin: 8px 0 0; }
+body.side-rail .side-foot .powered-by { display: none; }
+.login-art .platform-name { font-family: var(--font-sans); font-size: 22px; font-weight: 700; letter-spacing: .02em; }
+.login-art .platform-name span { color: var(--gold); }
+.sidebar .brand span.brand-sub { text-transform: none; letter-spacing: .04em; white-space: nowrap; font-size: 11.5px; }
