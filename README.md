@@ -1,5 +1,13 @@
 # TAPJERR.io – Smart QR Ordering & Management System
 
+<p align="center">
+  <a href="https://abdulnafi99.github.io/sistem-order/"><img alt="Customer App – Buka Demo" src="https://img.shields.io/badge/Customer_App-Buka_Demo-344E41?style=for-the-badge&labelColor=1D332B"></a>
+  <a href="https://abdulnafi99.github.io/sistem-order/admin.html"><img alt="Admin Dashboard – Buka Demo" src="https://img.shields.io/badge/Admin_Dashboard-Buka_Demo-344E41?style=for-the-badge&labelColor=1D332B"></a>
+  <a href="https://abdulnafi99.github.io/sistem-order/kitchen.html"><img alt="Kitchen Display – Buka Demo" src="https://img.shields.io/badge/Kitchen_Display-Buka_Demo-344E41?style=for-the-badge&labelColor=1D332B"></a>
+</p>
+
+<p align="center"><sub>Demo percuma – tiada pendaftaran. Log masuk Admin: <code>admin@selagicoffee.my</code> / <code>admin123</code> · Dapur: <code>kitchen@selagicoffee.my</code> / <code>kitchen123</code> (atau tekan akaun demo di skrin log masuk)</sub></p>
+
 **TAPJERR.io** ialah platform pesanan QR untuk kafe & restoran. Demo menggunakan kafe contoh **SELAGI COFFEE** (nama, logo, menu dan alamat kafe boleh ditukar di *Admin → Settings*).
 
 Aplikasi web **PWA** untuk restoran/kafe: pelanggan **scan QR di meja → lihat menu → tambah ke cart → checkout → jejak pesanan**, manakala pesanan masuk terus ke **Admin Dashboard** dan **Kitchen Display** secara *real-time*.
@@ -12,9 +20,7 @@ Dibina dengan **HTML5 + Vanilla CSS + Vanilla JavaScript** (tiada React/Vue/Boot
 | Admin dashboard | `admin.html` | Owner, Manager, Cashier, Waiter |
 | Kitchen Display (KDS) | `kitchen.html` | Kitchen staff (tablet) |
 
-**🔗 Demo online:** <https://abdulnafi99.github.io/sistem-order/> · [Admin](https://abdulnafi99.github.io/sistem-order/admin.html) · [Kitchen](https://abdulnafi99.github.io/sistem-order/kitchen.html)
-
-Laman demo diterbitkan automatik ke GitHub Pages oleh `.github/workflows/pages-demo.yml` setiap kali ada push ke `main`. Ia sentiasa berjalan dalam **Demo mode**: setiap pelawat mendapat data contoh sendiri dalam browser mereka, dan perubahan seorang pelawat tidak kelihatan kepada pelawat lain. Persediaan sekali sahaja: repo **Settings → Pages → Source: GitHub Actions**.
+**Demo online** (butang di atas) diterbitkan automatik ke GitHub Pages oleh `.github/workflows/pages-demo.yml` setiap kali ada push ke `main`. Ia sentiasa berjalan dalam **Demo mode**: setiap pelawat mendapat data contoh sendiri dalam browser mereka, dan perubahan seorang pelawat tidak kelihatan kepada pelawat lain. Persediaan sekali sahaja: repo **Settings → Pages → Source: GitHub Actions**.
 
 ## Identiti & UI
 
