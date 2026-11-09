@@ -1,8 +1,8 @@
 {
-  "name": "selagi-smart-ordering",
+  "name": "tapjerr-io",
   "version": "1.0.0",
   "private": true,
-  "description": "SELAGI COFFEE – Smart QR cafe ordering & management system (vanilla JS PWA + Firebase)",
+  "description": "TAPJERR.io – Smart QR cafe ordering & management platform (vanilla JS PWA + Firebase)",
   "type": "module",
   "scripts": {
     "start": "npx --yes http-server public -p 8080 -c-1",

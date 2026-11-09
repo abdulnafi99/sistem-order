@@ -282,7 +282,7 @@ export function receiptHtml(order, settings = {}) {
     <tr class="tot"><td><b>TOTAL</b></td><td class="r"><b>RM ${Number(order.total).toFixed(2)}</b></td></tr>
     <tr><td>Payment</td><td class="r">${esc(METHOD_LABEL[order.paymentMethod] || order.paymentMethod)} · ${esc(PAY_LABEL[order.paymentStatus] || order.paymentStatus)}</td></tr>
     ${order.paymentRef ? `<tr><td>Ref</td><td class="r">${esc(order.paymentRef)}</td></tr>` : ''}</table>
-    <div class="dash"></div><p class="center muted">Thank you & see you again!</p></div>`;
+    <div class="dash"></div><p class="center muted">Thank you & see you again!</p><p class="center muted" style="font-size:10px;margin-top:6px">Powered by TAPJERR.io</p></div>`;
 }
 
 // ------------------------------------------------------------------ misc
@@ -301,10 +301,20 @@ export function hideSplash() {
 }
 export function demoBanner(api) {
   if (api.mode !== 'demo' || sessionStorage.getItem('eh_demo_dismissed')) return '';
-  return `<div class="demo-banner" id="demo-banner">${icon('info', 16)}<span><b>Demo mode</b> – data is stored in this browser and syncs live between tabs. Configure Firebase for multi-device use.</span><button class="icon-btn sm" onclick="sessionStorage.setItem('eh_demo_dismissed',1);this.parentNode.remove()" aria-label="Dismiss">${icon('x', 14)}</button></div>`;
+  return `<div class="demo-banner" id="demo-banner">${icon('info', 16)}<span><b>TAPJERR.io demo</b> – data is stored in this browser and syncs live between tabs. Configure Firebase for multi-device use.</span><button class="icon-btn sm" onclick="sessionStorage.setItem('eh_demo_dismissed',1);this.parentNode.remove()" aria-label="Dismiss">${icon('x', 14)}</button></div>`;
 }
 
 // ------------------------------------------------------------------ brand
+/** TAPJERR.io platform name & mark (the café keeps its own logo via logoMark). */
+export const PLATFORM = 'TAPJERR.io';
+export function platformSvg() {
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="31" r="4.6" fill="currentColor"/><circle cx="50" cy="31" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="50" cy="31" r="16.5" fill="none" stroke="#C7A66A" stroke-width="1.6" opacity=".9"/><text x="50" y="68" text-anchor="middle" fill="currentColor" font-family="Poppins, Arial, sans-serif" font-size="16.5" font-weight="700" letter-spacing=".4">TAPJERR</text><text x="51" y="83" text-anchor="middle" fill="#C7A66A" font-family="Poppins, Arial, sans-serif" font-size="10" font-weight="600" letter-spacing="2.4">.IO</text></svg>`;
+}
+export function platformMark(size = 56, radius = null) {
+  const r = radius == null ? Math.round(size * 0.26) : radius;
+  return `<div class="logo-mark" style="width:${size}px;height:${size}px;border-radius:${r}px" aria-label="${PLATFORM}">${platformSvg()}</div>`;
+}
+export const poweredBy = (cls = '') => `<p class="powered-by ${cls}">Powered by <b>TAPJERR<span>.io</span></b></p>`;
 export function logoSvg() {
   return `<svg viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(50 29) rotate(-28)"><ellipse rx="8.5" ry="12.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M0.5 -12 C -5.5 -4 5.5 4 -0.5 12" fill="none" stroke="currentColor" stroke-width="2"/></g><text x="50" y="66" text-anchor="middle" fill="currentColor" font-family="Cormorant Garamond, Georgia, serif" font-size="21" font-weight="700" letter-spacing="1.2">SELAGI</text><path d="M31 72.5 H69" stroke="#C7A66A" stroke-width="1.2"/><text x="51.5" y="82.5" text-anchor="middle" fill="currentColor" font-family="Poppins, Arial, sans-serif" font-size="7.4" font-weight="500" letter-spacing="3.2">COFFEE</text></svg>`;
 }

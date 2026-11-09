@@ -1,11 +1,11 @@
 // =====================================================================
-// SELAGI COFFEE – Admin dashboard (entry, auth, layout, live data)
+// TAPJERR.io – Admin dashboard (entry, auth, layout, live data)
 // =====================================================================
 import { initApi } from '../core/api.js';
 import { hasPerm, ROLES } from '../core/server-logic.js';
 import { DEMO_STAFF } from '../core/seed.js';
 import {
-  $, $$, esc, icon, toast, errMsg, chime, unlockAudio, timeAgo, registerSW, hideSplash, demoBanner, logoMark, formData, rm, openModal,
+  $, $$, esc, icon, toast, errMsg, chime, unlockAudio, timeAgo, registerSW, hideSplash, demoBanner, logoMark, formData, rm, openModal, platformMark, poweredBy,
 } from '../core/ui.js';
 import { VIEWS } from './views.js';
 import { VIEWS2 } from './views2.js';
@@ -106,11 +106,12 @@ function newOrderAlert(o) {
 function renderLogin() {
   const s = A.settings;
   $('#root').innerHTML = `<div class="login-screen">
-    <div class="login-art"><div class="row">${logoMark(s, 56)}<div><b style="font-family:var(--font-serif);font-size:22px">${esc(s.restaurantName || 'SELAGI COFFEE')}</b><div class="xs" style="letter-spacing:.16em;color:var(--gold)">SMART ORDERING</div></div></div>
+    <div class="login-art"><div class="row">${platformMark(56)}<div><b class="platform-name">TAPJERR<span>.io</span></b><div class="xs" style="letter-spacing:.16em;color:var(--gold)">SMART QR ORDERING</div></div></div>
       <div><h1>Run your restaurant from one beautiful dashboard.</h1><p>Live orders, kitchen display, QR tables, payments, loyalty and reports – synchronised in real time.</p></div>
-      <p class="xs">© ${new Date().getFullYear()} ${esc(s.restaurantName || 'SELAGI COFFEE')}</p></div>
+      <p class="xs">© ${new Date().getFullYear()} TAPJERR.io · ${esc(s.restaurantName || 'SELAGI COFFEE')}</p></div>
     <div class="login-form-wrap"><div class="login-card">
       ${demoBanner(A.api)}
+      <div class="row mb">${logoMark(s, 44, 12)}<div><b>${esc(s.restaurantName || 'SELAGI COFFEE')}</b><div class="xs muted">Outlet on TAPJERR.io</div></div></div>
       <h2>Staff sign in</h2><p class="muted mb">Admin, manager, cashier, kitchen & waiter accounts.</p>
       <form class="stack" id="login-form">
         <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="username" required></label>
@@ -194,7 +195,7 @@ function renderSidebar() {
   const key = `${A.staff.uid}|${A.staff.role}|${s.restaurantName || ''}|${s.logo || ''}`;
   if (sidebarFor !== key || !$('.side-nav', side)) {
     sidebarFor = key;
-    side.innerHTML = `<div class="brand">${logoMark(s, 44, 12)}<div class="brand-text"><b>${esc(s.restaurantName || 'SELAGI COFFEE')}</b><span>Admin Console</span></div>
+    side.innerHTML = `<div class="brand">${logoMark(s, 44, 12)}<div class="brand-text"><b>${esc(s.restaurantName || 'SELAGI COFFEE')}</b><span class="brand-sub">Console · TAPJERR.io</span></div>
         <button class="icon-btn side-collapse" id="side-collapse" aria-label="Collapse sidebar" title="Collapse / expand">${icon('back', 18)}</button></div>
       <nav class="side-nav" aria-label="Admin"><span class="side-glider" aria-hidden="true"></span>${NAV.map((n) => {
         if (n.length === 1) return `<div class="side-label">${n[0]}</div>`;
@@ -205,6 +206,7 @@ function renderSidebar() {
       <div class="side-foot">
         ${hasPerm(A.staff, 'kitchen') ? `<a class="side-link" href="kitchen.html" target="_blank" rel="noopener" title="Kitchen Display">${icon('chef', 17)}<span class="side-text">Kitchen Display</span></a>` : ''}
         <a class="side-link" href="index.html" target="_blank" rel="noopener" title="Customer app">${icon('external', 17)}<span class="side-text">Customer app</span></a>
+        ${poweredBy()}
         <div class="side-user"><div class="avatar">${esc((A.staff.name || '?')[0])}</div><div class="grow side-text"><b class="ellipsis">${esc(A.staff.name)}</b><span>${esc((ROLES[A.staff.role] || {}).name || A.staff.role)}</span></div><button class="icon-btn" id="logout" title="Sign out" aria-label="Sign out">${icon('logout', 18)}</button></div>
       </div>`;
     $('#logout').onclick = async () => { await A.api.call('logStaffActivity', { action: 'auth.logout', detail: 'Signed out' }).catch(() => {}); await A.api.auth.logout(); location.hash = ''; };

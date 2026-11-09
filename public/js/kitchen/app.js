@@ -1,5 +1,5 @@
 // =====================================================================
-// SELAGI COFFEE – Kitchen Display System (KDS)
+// TAPJERR.io – Kitchen Display System (KDS)
 // New Orders → Preparing → Ready → Completed, live, with sound alerts.
 // =====================================================================
 import { initApi } from '../core/api.js';
@@ -62,13 +62,13 @@ let titleTimer = null;
 function flashTitle(n) {
   clearInterval(titleTimer);
   let on = false; let count = 0;
-  titleTimer = setInterval(() => { document.title = (on = !on) ? `🔔 ${n} NEW ORDER${n > 1 ? 'S' : ''}` : 'Kitchen Display · SELAGI COFFEE'; if (++count > 12) { clearInterval(titleTimer); document.title = 'Kitchen Display · SELAGI COFFEE'; } }, 700);
+  titleTimer = setInterval(() => { document.title = (on = !on) ? `🔔 ${n} NEW ORDER${n > 1 ? 'S' : ''}` : 'Kitchen Display · TAPJERR.io'; if (++count > 12) { clearInterval(titleTimer); document.title = 'Kitchen Display · TAPJERR.io'; } }, 700);
 }
 
 function renderLogin(msg) {
   const s = K.settings;
   $('#root').innerHTML = `<div class="login-screen" style="grid-template-columns:1fr"><div class="login-form-wrap"><div class="login-card">
-    <div class="row mb">${logoMark(s, 52)}<div><b style="font-family:var(--font-serif);font-size:22px">${esc(s.restaurantName || 'SELAGI COFFEE')}</b><div class="xs muted" style="letter-spacing:.14em">KITCHEN DISPLAY</div></div></div>
+    <div class="row mb">${logoMark(s, 52)}<div><b style="font-family:var(--font-serif);font-size:22px">${esc(s.restaurantName || 'SELAGI COFFEE')}</b><div class="xs muted" style="letter-spacing:.14em">KITCHEN DISPLAY · TAPJERR.io</div></div></div>
     ${demoBanner(K.api)}${msg ? `<div class="chip red mb" style="white-space:normal">${esc(msg)}</div>` : ''}
     <form class="stack" id="kl"><label class="field"><span>Email</span><input class="input" name="email" type="email" required></label><label class="field"><span>Password</span><input class="input" name="password" type="password" required></label><button class="btn btn-primary btn-lg btn-block">Open Kitchen Display</button></form>
     ${K.api.mode === 'demo' ? `<div class="demo-creds">${DEMO_STAFF.filter((d) => ['kitchen', 'super_admin', 'waiter'].includes(d.role)).map((d) => `<button data-e="${d.email}" data-p="${d.password}">${d.email} / ${d.password}</button>`).join('')}</div>` : ''}

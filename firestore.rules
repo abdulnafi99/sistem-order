@@ -1,7 +1,7 @@
 rules_version = '2';
 
 // =====================================================================
-// SELAGI COFFEE – Firestore security rules
+// TAPJERR.io – Firestore security rules
 // • Customers can NEVER write orders, payments, points or vouchers
 //   directly. All of that goes through Cloud Functions (Admin SDK),
 //   which re-price orders from the menu and verify table QR tokens.

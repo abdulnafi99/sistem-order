@@ -1,8 +1,8 @@
 /* ==================================================================
-   SELAGI COFFEE – design system (shared by customer, admin, kitchen)
+   TAPJERR.io – design system (shared by customer, admin, kitchen)
    ================================================================== */
 :root {
-  /* SELAGI COFFEE brand palette */
+  /* TAPJERR.io palette (moss, cream & gold) */
   --moss: #344E41;
   --moss-dark: #1D332B;
   --cream: #F5F0E7;
@@ -103,6 +103,10 @@ input, select, textarea { font: inherit; color: inherit; }
 .logo-mark { display: grid; place-items: center; background: linear-gradient(145deg, var(--moss), var(--moss-dark)); color: var(--cream); border: 1.5px solid rgba(199,166,106,.75); flex-shrink: 0; }
 .logo-mark img { background: var(--cream); }
 .logo-mark svg { width: 88%; height: 88%; }
+
+.powered-by { text-align: center; font-size: 11.5px; color: var(--muted-2); letter-spacing: .02em; margin: 6px 0 0; }
+.powered-by b { color: var(--moss); font-weight: 700; letter-spacing: .03em; }
+.powered-by b span { color: var(--gold); }
 
 /* ---------------- buttons ---------------- */
 .btn {

@@ -1,4 +1,4 @@
-# Deploys SELAGI COFFEE to Firebase (rules, indexes, Storage rules, Cloud Functions, Hosting).
+# Deploys TAPJERR.io to Firebase (rules, indexes, Storage rules, Cloud Functions, Hosting).
 #
 # Required GitHub configuration (repo Settings → Secrets and variables → Actions):
 #   Secret   FIREBASE_SERVICE_ACCOUNT  – JSON key of a deploy service account (see README §4)

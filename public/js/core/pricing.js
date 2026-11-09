@@ -1,5 +1,5 @@
 // =====================================================================
-// SELAGI COFFEE – Shared pricing engine
+// TAPJERR.io – Shared pricing engine
 // ---------------------------------------------------------------------
 // SINGLE SOURCE OF TRUTH for order price calculation.
 // Used by:
