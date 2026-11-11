@@ -135,16 +135,28 @@ export function openModal({ title = '', body = '', wide = false, sheet = false, 
   document.body.appendChild(wrap);
   document.body.classList.add('no-scroll');
   const prevFocus = document.activeElement;
+  let closed = false;
   const close = () => {
+    if (closed) return;
+    closed = true;
+    wrap.dataset.closing = '1';
     wrap.classList.remove('show');
     setTimeout(() => { wrap.remove(); if (!document.querySelector('.modal-wrap')) document.body.classList.remove('no-scroll'); }, 220);
     document.removeEventListener('keydown', onKey);
     if (prevFocus && prevFocus.focus) prevFocus.focus();
     onClose && onClose();
   };
-  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  // Escape closes only the dialog on top (e.g. a confirm opened from inside another modal).
+  const onKey = (e) => {
+    if (e.key !== 'Escape') return;
+    const open = [...document.querySelectorAll('.modal-wrap')].filter((w) => !w.dataset.closing);
+    if (open[open.length - 1] === wrap) { e.stopImmediatePropagation(); close(); }
+  };
   document.addEventListener('keydown', onKey);
+  const openedAt = Date.now();
   wrap.addEventListener('click', (e) => {
+    // ignore the second half of a double tap that lands on the backdrop right after opening
+    if (e.target === wrap && Date.now() - openedAt < 350) return;
     if (e.target === wrap || e.target.closest('[data-close]')) close();
     const act = e.target.closest('[data-act]');
     if (act) {
@@ -162,7 +174,12 @@ export function openModal({ title = '', body = '', wide = false, sheet = false, 
   return { el: wrap, close };
 }
 
+let confirmOpen = false;
 export function confirmDialog(message, { title = 'Are you sure?', okLabel = 'Confirm', danger = false, input = null } = {}) {
+  // A second request while one is showing is declined, so a double tap can never stack
+  // two dialogs or run the same delete twice.
+  if (confirmOpen) return Promise.resolve(input ? null : false);
+  confirmOpen = true;
   return new Promise((resolve) => {
     let done = false;
     openModal({
@@ -172,7 +189,7 @@ export function confirmDialog(message, { title = 'Are you sure?', okLabel = 'Con
         { label: 'Cancel', cls: 'btn-ghost', onClick: (el, close) => { close(); } },
         { label: okLabel, cls: danger ? 'btn-danger' : 'btn-primary', onClick: (el, close) => { done = true; const v = el.querySelector('#confirm-input'); close(); resolve(input ? (v ? v.value : '') : true); } },
       ],
-      onClose: () => { if (!done) resolve(input ? null : false); },
+      onClose: () => { confirmOpen = false; if (!done) resolve(input ? null : false); },
     });
   });
 }
