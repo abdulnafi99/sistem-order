@@ -175,11 +175,15 @@ function render(isNav) {
   // views may opt-out of live re-render while user is typing in a form
   if (!changed && ALL_VIEWS[v].noLive && content.dataset.view === v) return;
   content.dataset.view = v;
-  content.innerHTML = ALL_VIEWS[v].render(arg);
+  // Render into a fresh root on every pass: views bind delegated listeners to the element they
+  // receive, and binding them to the long-lived #content made them pile up on each live update
+  // (one click on Delete opened several stacked confirm dialogs).
+  content.innerHTML = `<div class="view-root">${ALL_VIEWS[v].render(arg)}</div>`;
+  const root = content.firstElementChild;
   if (changed) { content.classList.remove('page-enter'); void content.offsetWidth; content.classList.add('page-enter'); }
   if (changed && isNav) window.scrollTo(0, 0); else window.scrollTo(0, scrollY);
   if (activeId) { const el = document.getElementById(activeId); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch { /* */ } } }
-  ALL_VIEWS[v].bind && ALL_VIEWS[v].bind(content, arg);
+  ALL_VIEWS[v].bind && ALL_VIEWS[v].bind(root, arg);
   if (changed) document.body.classList.remove('side-open', 'side-expanded');
 }
 
