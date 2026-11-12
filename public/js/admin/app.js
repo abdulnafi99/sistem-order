@@ -117,11 +117,21 @@ function renderLogin() {
         <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="username" required></label>
         <label class="field"><span>Password</span><input class="input" name="password" type="password" autocomplete="current-password" required></label>
         <button class="btn btn-primary btn-lg btn-block" type="submit">Sign in</button>
+        ${A.api.mode !== 'demo' ? '<button class="btn btn-ghost btn-sm" type="button" id="forgot-pw">Forgot password?</button>' : ''}
       </form>
       ${A.api.mode === 'demo' ? `<div class="demo-creds"><b>Demo accounts</b> (click to fill)${DEMO_STAFF.map((d) => `<button data-email="${esc(d.email)}" data-pw="${esc(d.password)}">${esc(ROLES[d.role].name)} – ${esc(d.email)} / ${esc(d.password)}</button>`).join('')}</div>` : ''}
       <p class="xs muted center mt"><a href="index.html">← Customer app</a> · <a href="kitchen.html">Kitchen display</a></p>
     </div></div></div>`;
   $$('.demo-creds [data-email]').forEach((b) => b.addEventListener('click', () => { $('[name=email]').value = b.dataset.email; $('[name=password]').value = b.dataset.pw; }));
+  const fp = $('#forgot-pw');
+  if (fp) fp.addEventListener('click', async () => {
+    const email = $('[name=email]').value.trim();
+    if (!email) { toast('Enter your email first', 'error'); $('[name=email]').focus(); return; }
+    fp.disabled = true; fp.classList.add('loading');
+    try { await A.api.auth.resetPassword(email); toast(`Password reset link sent to ${email} – check your inbox (and spam).`, 'success', 7000); }
+    catch (err) { toast(errMsg(err), 'error', 6000); }
+    finally { fp.disabled = false; fp.classList.remove('loading'); }
+  });
   $('#login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button'); btn.classList.add('loading'); btn.disabled = true;

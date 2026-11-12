@@ -33,8 +33,15 @@ for (const m of MENU) await put('menu', m.id, { ...m, soldCount: 0 });
 for (const t of TABLES) await put('tables', t.id, { ...t, token: newTableToken() });
 for (const r of REWARDS) await put('rewards', r.id, r);
 
-const email = process.env.ADMIN_EMAIL;
-const password = process.env.ADMIN_PASSWORD;
+const rawEmail = process.env.ADMIN_EMAIL || '';
+const rawPassword = process.env.ADMIN_PASSWORD || '';
+// Secrets pasted on a phone/tablet often carry a trailing space or newline, which would become part
+// of the password and make signing in impossible. Trim both and say so (never print the values).
+const email = rawEmail.trim();
+const password = rawPassword.trim();
+if (rawEmail && rawEmail !== email) console.log('  note: ADMIN_EMAIL had spaces/newlines around it – trimmed');
+if (rawPassword && rawPassword !== password) console.log('  note: ADMIN_PASSWORD had spaces/newlines around it – trimmed');
+if (password && password.length < 6) { console.error('ADMIN_PASSWORD must be at least 6 characters.'); process.exit(1); }
 if (email && password) {
   const auth = getAuth();
   let user;
