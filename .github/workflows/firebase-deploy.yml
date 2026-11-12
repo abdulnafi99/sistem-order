@@ -68,15 +68,40 @@ jobs:
           printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/sa.json" >> "$GITHUB_ENV"
 
+      - name: Check Firebase Storage
+        id: storage
+        working-directory: functions
+        run: |
+          # Storage rules can only be deployed once the project has a default bucket
+          # (Firebase console → Storage → Get started). Until then, deploy everything else
+          # and skip Storage with a warning instead of failing the whole deploy.
+          PROJECT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('../.firebaserc','utf8')).projects.default)")
+          status=$(PROJECT="$PROJECT" node --input-type=module -e "
+            import { GoogleAuth } from 'google-auth-library';
+            try {
+              const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
+              const client = await auth.getClient();
+              const r = await client.request({ url: 'https://firebasestorage.googleapis.com/v1alpha/projects/' + process.env.PROJECT + '/defaultBucket' });
+              console.log(r.data && r.data.bucket && r.data.bucket.name ? 'ready' : 'missing');
+            } catch (e) { console.log(e.response && e.response.status === 404 ? 'missing' : 'unknown'); }
+          ")
+          echo "Firebase Storage default bucket: $status"
+          if [ "$status" = "missing" ]; then
+            echo "::warning::Firebase Storage is not set up yet (no default bucket), so Storage rules are skipped. Image uploads in Admin will not work until you open https://console.firebase.google.com/project/$PROJECT/storage, click 'Get started', and run this workflow again."
+            echo "target=" >> "$GITHUB_OUTPUT"
+          else
+            echo "target=,storage" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Choose which functions to deploy
         id: targets
         run: |
           # The Billplz functions need secrets in Secret Manager; skip them until enabled.
           if [ "${{ vars.BILLPLZ_ENABLED }}" = "true" ]; then
-            echo "only=functions,firestore,storage,hosting" >> "$GITHUB_OUTPUT"
+            echo "only=functions,firestore${{ steps.storage.outputs.target }},hosting" >> "$GITHUB_OUTPUT"
           else
             fns=$(grep -oE '^export const [A-Za-z]+' functions/index.js | awk '{print $3}' | grep -vE '^(createOnlinePayment|billplzWebhook)$' | sed 's/^/functions:/' | paste -sd, -)
-            echo "only=$fns,firestore,storage,hosting" >> "$GITHUB_OUTPUT"
+            echo "only=$fns,firestore${{ steps.storage.outputs.target }},hosting" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Deploy
