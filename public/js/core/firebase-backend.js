@@ -61,6 +61,11 @@ export async function createFirebaseBackend(scope, config) {
 
   // ---- auth state with staff/customer profile resolution ----
   let current = null;
+  // Existing Firebase Auth accounts (e.g. created before this app, or in the console) have no
+  // member profile yet: the customer app turns them into members on first sign-in.
+  let registering = false;
+  const memberEnsured = new Set();
+  let ensureMember = async () => {};
   let profileUnsub = null;
   const authListeners = new Set();
   const fireAuth = () => authListeners.forEach((cb) => cb(current));
@@ -74,6 +79,7 @@ export async function createFirebaseBackend(scope, config) {
     const path = scope === 'staff' ? doc(db, 'staff', u.uid) : doc(db, 'users', u.uid);
     profileUnsub = onSnapshot(path, (snap) => {
       const data = snap.exists() ? { id: snap.id, ...snap.data() } : null;
+      if (scope === 'customer' && !data && !u.isAnonymous && !snap.metadata.fromCache) ensureMember(u);
       if (scope === 'staff') current = data && data.active !== false ? { ...base, staff: data } : null;
       else current = { ...base, profile: data };
       fireAuth(); ready();
@@ -163,6 +169,18 @@ export async function createFirebaseBackend(scope, config) {
     await runLocal(LOGIC.saveStaffProfile, { uid: staffUid, name, email, role, permissions, active, phone });
     return { uid: staffUid };
   }
+  ensureMember = async (u) => {
+    if (!u || u.isAnonymous || registering || memberEnsured.has(u.uid)) return;
+    memberEnsured.add(u.uid);
+    const fromEmail = String(u.email || '').split('@')[0].replace(/[._-]+/g, ' ').trim();
+    let name = String(u.displayName || fromEmail || '').trim();
+    if (name.length < 2) name = 'Member';
+    name = name.replace(/\b\w/g, (c) => c.toUpperCase()).slice(0, 60);
+    try { await callBackend('registerCustomer', { name, email: u.email || '', phone: u.phoneNumber || '' }); }
+    catch (e) { memberEnsured.delete(u.uid); console.warn('Could not create member profile', e); }
+  };
+  // catch up on a session that was already signed in before ensureMember was ready
+  if (scope === 'customer' && auth.currentUser && !auth.currentUser.isAnonymous && current && !current.profile) ensureMember(auth.currentUser);
   async function callBackend(name, data = {}) {
     if (useFunctions) return (await fnMod.httpsCallable(functions, name)(data)).data;
     const { LOGIC, LogicError } = await loadLogic();
@@ -191,18 +209,22 @@ export async function createFirebaseBackend(scope, config) {
             const s = await getDoc(doc(db, 'staff', cred.user.uid));
             if (!s.exists() || s.data().active === false) { await signOut(auth); throw Object.assign(new Error('This account is not an active staff account.'), { code: 'permission-denied' }); }
             callBackend('logStaffActivity', { action: 'auth.login', detail: 'Signed in' }).catch(() => {});
+          } else {
+            const snap = await getDoc(doc(db, 'users', cred.user.uid));
+            if (!snap.exists()) await ensureMember(cred.user);
           }
           return current;
         } catch (e) { throw normalizeError(e); }
       },
       async register({ name, email, phone, password, referralCode }) {
+        registering = true;
         try {
           const cred = EmailAuthProvider.credential(String(email).trim(), password);
           if (auth.currentUser && auth.currentUser.isAnonymous) await linkWithCredential(auth.currentUser, cred);
           else await createUserWithEmailAndPassword(auth, String(email).trim(), password);
           await callBackend('registerCustomer', { name, email, phone, referralCode });
           return current;
-        } catch (e) { throw normalizeError(e); }
+        } catch (e) { throw normalizeError(e); } finally { registering = false; }
       },
       async resetPassword(email) {
         try { await sendPasswordResetEmail(auth, String(email).trim()); } catch (e) { throw normalizeError(e); }

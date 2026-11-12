@@ -1,12 +1,20 @@
 # TAPJERR.io – Smart QR Ordering & Management System
 
+<p align="center"><b>Sistem Sebenar</b> – data dikongsi semua peranti (Firebase)</p>
+<p align="center">
+  <a href="https://order-pickup-891f2.web.app/"><img alt="Customer App – Sistem Sebenar" src="https://img.shields.io/badge/Customer_App-Sistem_Sebenar-C7A66A?style=for-the-badge&labelColor=1D332B"></a>
+  <a href="https://order-pickup-891f2.web.app/admin.html"><img alt="Admin Dashboard – Sistem Sebenar" src="https://img.shields.io/badge/Admin_Dashboard-Sistem_Sebenar-C7A66A?style=for-the-badge&labelColor=1D332B"></a>
+  <a href="https://order-pickup-891f2.web.app/kitchen.html"><img alt="Kitchen Display – Sistem Sebenar" src="https://img.shields.io/badge/Kitchen_Display-Sistem_Sebenar-C7A66A?style=for-the-badge&labelColor=1D332B"></a>
+</p>
+
+<p align="center"><b>Demo</b> – data dalam browser setiap pelawat sahaja, sesuai untuk promosi</p>
 <p align="center">
   <a href="https://abdulnafi99.github.io/sistem-order/"><img alt="Customer App – Buka Demo" src="https://img.shields.io/badge/Customer_App-Buka_Demo-344E41?style=for-the-badge&labelColor=1D332B"></a>
   <a href="https://abdulnafi99.github.io/sistem-order/admin.html"><img alt="Admin Dashboard – Buka Demo" src="https://img.shields.io/badge/Admin_Dashboard-Buka_Demo-344E41?style=for-the-badge&labelColor=1D332B"></a>
   <a href="https://abdulnafi99.github.io/sistem-order/kitchen.html"><img alt="Kitchen Display – Buka Demo" src="https://img.shields.io/badge/Kitchen_Display-Buka_Demo-344E41?style=for-the-badge&labelColor=1D332B"></a>
 </p>
 
-<p align="center"><sub>Demo percuma – tiada pendaftaran. Log masuk Admin: <code>admin@selagicoffee.my</code> / <code>admin123</code> · Dapur: <code>kitchen@selagicoffee.my</code> / <code>kitchen123</code> (atau tekan akaun demo di skrin log masuk)</sub></p>
+<p align="center"><sub>Sistem sebenar: log masuk Admin dengan akaun owner (secret <code>ADMIN_EMAIL</code>), staf lain dicipta di Admin → Staff Management.<br>Demo percuma – tiada pendaftaran. Log masuk Admin: <code>admin@selagicoffee.my</code> / <code>admin123</code> · Dapur: <code>kitchen@selagicoffee.my</code> / <code>kitchen123</code> (atau tekan akaun demo di skrin log masuk)</sub></p>
 
 **TAPJERR.io** ialah platform pesanan QR untuk kafe & restoran. Demo menggunakan kafe contoh **SELAGI COFFEE** (nama, logo, menu dan alamat kafe boleh ditukar di *Admin → Settings*).
 
