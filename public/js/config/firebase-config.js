@@ -14,6 +14,10 @@ export const firebaseConfig = {
   storageBucket: 'order-pickup-891f2.firebasestorage.app',
   messagingSenderId: '356022096623',
   appId: '1:356022096623:web:76b461b2c3ebbeeac9411a',
+  // false = "Firestore only": business rules run in the browser inside Firestore
+  // transactions – no Cloud Functions or Storage needed (free Spark plan).
+  // true  = trusted Cloud Functions backend (Blaze plan) – see /functions.
+  useCloudFunctions: false,
   // Region where /functions is deployed (must match functions/index.js)
   functionsRegion: 'asia-southeast1',
 };

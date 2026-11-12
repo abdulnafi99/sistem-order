@@ -1,4 +1,6 @@
-# Deploys TAPJERR.io to Firebase (rules, indexes, Storage rules, Cloud Functions, Hosting).
+# Deploys TAPJERR.io to Firebase. Firestore-only mode (useCloudFunctions: false in
+# public/js/config/firebase-config.js): Firestore rules/indexes + Hosting (+ Storage rules if set up).
+# Cloud Functions mode (useCloudFunctions: true, Blaze plan): also deploys Cloud Functions.
 #
 # Required GitHub configuration (repo Settings → Secrets and variables → Actions):
 #   Secret   FIREBASE_SERVICE_ACCOUNT  – JSON key of a deploy service account (see README §4)
@@ -93,9 +95,16 @@ jobs:
             echo "target=,storage" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Choose which functions to deploy
+      - name: Choose what to deploy
         id: targets
         run: |
+          # "Firestore only" mode (useCloudFunctions: false in firebase-config.js) runs the business
+          # rules in the browser: deploy just Firestore rules/indexes and Hosting (free Spark plan).
+          if ! grep -qE "useCloudFunctions:[[:space:]]*true" public/js/config/firebase-config.js; then
+            echo "Firestore-only mode: skipping Cloud Functions."
+            echo "only=firestore${{ steps.storage.outputs.target }},hosting" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           # The Billplz functions need secrets in Secret Manager; skip them until enabled.
           if [ "${{ vars.BILLPLZ_ENABLED }}" = "true" ]; then
             echo "only=functions,firestore${{ steps.storage.outputs.target }},hosting" >> "$GITHUB_OUTPUT"

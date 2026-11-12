@@ -240,7 +240,6 @@ export async function placeOrder(db, ctx, input) {
   }
   const counterId = `orders-${dayKey(ctx.now, offset)}`;
   const counter = await db.get('counters', counterId);
-  const sessionOrders = table ? await loadSessionOrders(db, table) : [];
 
   // ---------- validate ----------
   const priced = priceOrder({ items, menuMap, settings, type, voucher, categoryMap });
@@ -319,7 +318,6 @@ export async function placeOrder(db, ctx, input) {
   const where = table ? table.name : `Takeaway · ${pickup.time}`;
   notify(db, ctx.now, { audience: 'staff', orderId, type: 'new_order', title: `New order ${orderNo}`, body: `${where} · ${order.itemCount} item(s) · RM ${order.total.toFixed(2)}` });
   notify(db, ctx.now, { audience: 'customer', uid: ctx.uid, orderId, type: 'received', title: 'Order received', body: `We have received order ${orderNo}.` });
-  void sessionOrders;
   return { orderId, orderNo, total: order.total };
 }
 
@@ -478,8 +476,9 @@ export async function registerCustomer(db, ctx, { name, email, phone, referralCo
   let referrer = null;
   const code = str(referralCode, 16).toUpperCase();
   if (code) {
-    const found = await db.query('users', [['referralCode', '==', code]]);
-    referrer = found[0] || null;
+    const ref = await db.get('referral_codes', code);
+    if (ref && ref.uid) referrer = await db.get('users', ref.uid);
+    else referrer = (await db.query('users', [['referralCode', '==', code]]))[0] || null;
     if (!referrer) fail('invalid-argument', 'Referral code not found.');
   }
   const cleanName = str(name, 60);
@@ -500,6 +499,7 @@ export async function registerCustomer(db, ctx, { name, email, phone, referralCo
     notify(db, ctx.now, { audience: 'customer', uid: referrer.id, type: 'points', title: `+${bonus} referral points`, body: `${cleanName} joined using your code.` });
   }
   db.set('users', user.id, user);
+  db.set('referral_codes', user.referralCode, { id: user.referralCode, uid: user.id });
   notify(db, ctx.now, { audience: 'customer', uid: user.id, type: 'welcome', title: `Welcome to ${settings.restaurantName || 'SELAGI COFFEE'}!`, body: 'Earn points on every order and unlock rewards.' });
   return { ok: true, memberNo: user.memberNo };
 }

@@ -2,22 +2,39 @@ rules_version = '2';
 
 // =====================================================================
 // TAPJERR.io – Firestore security rules
-// • Customers can NEVER write orders, payments, points or vouchers
-//   directly. All of that goes through Cloud Functions (Admin SDK),
-//   which re-price orders from the menu and verify table QR tokens.
-// • Staff access is role/permission based (staff/{uid}.permissions).
+// ---------------------------------------------------------------------
+// The app runs in "Firestore only" mode (public/js/config/firebase-config.js
+// → useCloudFunctions: false): the business rules in server-logic.js run in
+// the browser inside Firestore transactions, so the browser writes orders,
+// payments, points and vouchers itself. These rules keep each user to
+// their own data and to the fields each action needs:
+//   • customers create only their own orders (status "received", unpaid),
+//     may cancel them while "received" and submit a DuitNow reference,
+//     but can never mark anything paid or change totals;
+//   • only staff change order status, record/verify payments and award
+//     points to others; staff access is role/permission based;
+//   • menu, categories, rewards, tables (create/delete) and settings are
+//     staff-managed.
+// Known limits of browser-side logic: a determined customer could tamper
+// with their own loyalty balance or reuse a table QR token they have seen.
+// Switch to Cloud Functions (useCloudFunctions: true, Blaze plan) for full
+// server-side enforcement – the Admin SDK used there bypasses these rules.
 // =====================================================================
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
     function staffPath() { return /databases/$(database)/documents/staff/$(request.auth.uid); }
     function isStaff() { return signedIn() && exists(staffPath()) && get(staffPath()).data.active == true; }
     function can(p) {
       return isStaff() && (get(staffPath()).data.role == 'super_admin' || p in get(staffPath()).data.permissions);
     }
-    function onlyKeys(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
-    function owner(field) { return signedIn() && resource.data[field] == request.auth.uid; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    function onlyKeys(keys) { return changed().hasOnly(keys); }
+    function unchanged(f) { return !(f in changed()); }
+    function ownsDoc(field) { return signedIn() && resource.data[field] == uid(); }
+    function createsOwn(field) { return signedIn() && request.resource.data[field] == uid(); }
 
     // Public restaurant profile, pricing rules & loyalty rules (no secrets stored here).
     match /settings/{id} {
@@ -27,50 +44,94 @@ service cloud.firestore {
     }
 
     match /categories/{id} { allow read: if true; allow write: if can('menu'); }
-    match /menu/{id}       { allow read: if true; allow write: if can('menu'); }
-    match /rewards/{id}    { allow read: if true; allow write: if can('rewards'); }
 
-    // Tables hold the secret QR token -> staff only. Customers verify via the verifyTable function.
+    match /menu/{id} {
+      allow read: if true;
+      allow write: if can('menu');
+      // placing / cancelling an order adjusts the sold count and daily stock
+      allow update: if signedIn() && onlyKeys(['soldCount', 'stockLeft', 'available']);
+    }
+
+    match /rewards/{id} {
+      allow read: if true;
+      allow write: if can('rewards');
+      allow update: if signedIn() && onlyKeys(['stock', 'active']);   // redeeming a limited reward
+    }
+
+    // A table document holds the secret QR token: it can be fetched by id (the QR link carries
+    // the id and token) but never listed, so tokens can't be harvested.
     match /tables/{id} {
-      allow read: if isStaff();
+      allow get: if signedIn();
+      allow list: if isStaff();
       allow write: if can('tables');
+      allow update: if signedIn() && onlyKeys(['sessionId', 'sessionStartedAt', 'status', 'updatedAt']);
     }
 
     match /orders/{id} {
-      allow read: if isStaff() || owner('customerUid');
-      allow write: if false;            // placeOrder / updateOrderStatus functions only
+      allow read: if isStaff() || ownsDoc('customerUid');
+      allow create: if isStaff()
+        || (createsOwn('customerUid') && request.resource.data.status == 'received'
+            && request.resource.data.paymentStatus == 'unpaid' && request.resource.data.pointsAwarded == 0);
+      allow update: if can('orders') || can('kitchen') || can('payments')
+        || (ownsDoc('customerUid')
+            && onlyKeys(['status', 'statusHistory', 'cancelReason', 'cancelledAt', 'updatedAt', 'paymentStatus', 'paymentMethod', 'paymentRef', 'pendingPaymentId'])
+            && (unchanged('status') || (resource.data.status == 'received' && request.resource.data.status == 'cancelled'))
+            && (unchanged('paymentStatus') || request.resource.data.paymentStatus == 'pending_verification'));
+      allow delete: if false;
     }
-    match /order_items/{id} { allow read: if isStaff(); allow write: if false; }
+    match /order_items/{id} {
+      allow read: if isStaff();
+      allow create: if signedIn();
+      allow update: if isStaff() || (signedIn() && onlyKeys(['status']) && request.resource.data.status == 'cancelled');
+    }
     match /payments/{id} {
       allow read: if can('payments') || can('dashboard') || can('orders');
-      allow write: if false;            // recordPayment / verifyPayment / gateway webhook only
+      allow create: if can('payments') || can('orders')
+        || (signedIn() && request.resource.data.status == 'pending' && request.resource.data.method == 'duitnow');
+      allow update: if can('payments') || can('orders');
     }
 
-    match /users/{uid} {
-      allow read: if (signedIn() && request.auth.uid == uid) || can('customers') || can('rewards');
-      // customers may only change cosmetic fields; points/tier/spend are server-managed
-      allow update: if signedIn() && request.auth.uid == uid && onlyKeys(['favorites', 'avatar', 'updatedAt', 'id']);
-      allow create, delete: if false;   // registerCustomer function only
+    match /users/{userId} {
+      // fetch by id (own profile, or a referrer found through referral_codes); listing is staff-only
+      allow get: if signedIn();
+      allow list: if isStaff();
+      allow create: if signedIn() && uid() == userId && request.resource.data.points <= 100000;
+      allow update: if (signedIn() && uid() == userId) || isStaff()
+        // a new member who joined with this user's referral code credits the referral bonus
+        || (signedIn() && onlyKeys(['points', 'lifetimePoints', 'referralCount', 'referralPoints'])
+            && request.resource.data.referralCount == resource.data.get('referralCount', 0) + 1
+            && request.resource.data.points - resource.data.get('points', 0) <= 5000);
+      allow delete: if false;
+    }
+    // referral code -> member uid (lets a new member find the referrer without listing users)
+    match /referral_codes/{code} {
+      allow get: if signedIn();
+      allow create: if createsOwn('uid');
+      allow update, delete: if false;
     }
 
     match /vouchers/{id} {
-      allow read: if owner('uid') || can('rewards') || can('customers');
-      allow write: if false;
+      allow read: if ownsDoc('uid') || isStaff();
+      allow create: if createsOwn('uid') || isStaff();
+      allow update: if ownsDoc('uid') || isStaff();
     }
     match /loyalty_transactions/{id} {
-      allow read: if owner('uid') || can('rewards') || can('customers');
-      allow write: if false;
+      allow read: if ownsDoc('uid') || isStaff();
+      allow create: if signedIn();
+      allow update, delete: if false;
     }
     match /notifications/{id} {
-      allow read: if owner('uid') || (isStaff() && resource.data.audience == 'staff');
-      allow write: if false;
+      allow read: if ownsDoc('uid') || (isStaff() && resource.data.audience == 'staff');
+      allow create: if signedIn();
+      allow update: if (ownsDoc('uid') && onlyKeys(['read'])) || isStaff();
     }
 
-    match /staff/{uid} {
-      allow read: if (signedIn() && request.auth.uid == uid) || can('staff');
-      allow write: if false;            // createStaff function only (also manages Auth accounts)
+    match /staff/{staffId} {
+      allow read: if (signedIn() && uid() == staffId) || can('staff');
+      allow write: if can('staff');
     }
-    match /staff_activity/{id} { allow read: if can('staff'); allow write: if false; }
-    match /counters/{id}       { allow read, write: if false; }
+    match /staff_activity/{id} { allow read: if can('staff'); allow create: if isStaff(); }
+    // order / member number sequences
+    match /counters/{id} { allow read, write: if signedIn(); }
   }
 }
