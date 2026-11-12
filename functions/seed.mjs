@@ -38,7 +38,17 @@ const password = process.env.ADMIN_PASSWORD;
 if (email && password) {
   const auth = getAuth();
   let user;
-  try { user = await auth.getUserByEmail(email); } catch { user = await auth.createUser({ email, password, displayName: 'Owner' }); }
+  try {
+    // Existing account (e.g. the same email was used before): make sure it can sign in with
+    // ADMIN_PASSWORD and is not disabled, otherwise the secret's password would never work.
+    user = await auth.getUserByEmail(email);
+    user = await auth.updateUser(user.uid, { password, disabled: false });
+    console.log('  existing account found – password set from ADMIN_PASSWORD');
+  } catch (e) {
+    if (e && e.code && e.code !== 'auth/user-not-found') throw e;
+    user = await auth.createUser({ email, password, displayName: 'Owner' });
+    console.log('  new account created');
+  }
   await db.collection('staff').doc(user.uid).set({
     id: user.uid, uid: user.uid, name: process.env.ADMIN_NAME || 'Owner', email: email.toLowerCase(), role: 'super_admin',
     permissions: ROLES.super_admin.permissions, active: true, createdAt: now, updatedAt: now,
