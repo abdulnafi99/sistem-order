@@ -1,5 +1,5 @@
 // TAPJERR.io service worker – app-shell caching + offline fallback.
-const VERSION = 'tapjerr-v3';
+const VERSION = 'tapjerr-v4';
 const SHELL = [
   './', './index.html', './admin.html', './kitchen.html', './offline.html', './manifest.webmanifest',
   './css/base.css', './css/customer.css', './css/admin.css', './css/kitchen.css', './css/responsive.css',

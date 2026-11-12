@@ -135,6 +135,18 @@ tests/logic.test.mjs ← ujian peraturan bisnes (node --test)
 
 ## 4. Setup production (Firebase)
 
+> **Mod semasa: Firestore sahaja (percuma, pelan Spark).** `useCloudFunctions: false` dalam `public/js/config/firebase-config.js`.
+> Logik perniagaan yang sama (`server-logic.js`) dijalankan di browser dalam transaksi Firestore, jadi semua peranti
+> (pelanggan, admin, dapur) berkongsi data secara *real-time* tanpa Cloud Functions, Cloud Build atau Storage.
+> Workflow deploy hanya deploy **Firestore rules/indexes + Hosting**. Gambar disimpan terus dalam Firestore,
+> akaun staf dicipta dari Admin, dan bayaran online (Billplz) dimatikan – tunai & DuitNow tetap berfungsi.
+> `firestore.rules` mengehadkan setiap pengguna kepada data & medan mereka sendiri (pelanggan tidak boleh tandakan
+> pesanan *paid*, ubah harga/jumlah, jadikan diri staf, dsb.). Had: pelanggan yang mahir masih boleh mengusik baki
+> points mereka sendiri. Untuk penguatkuasaan penuh di server, tukar ke `useCloudFunctions: true` (pelan Blaze) dan
+> ikut langkah di bawah termasuk Cloud Functions.
+>
+> Untuk mod Firestore sahaja, langkah 1 (Blaze) dan bahagian Storage/Billplz boleh dilangkau.
+
 1. Cipta projek di <https://console.firebase.google.com> dan naik taraf ke pelan **Blaze** (diperlukan untuk Cloud Functions).
 2. **Authentication** → Sign-in method → aktifkan **Email/Password** dan **Anonymous**.
 3. Cipta **Firestore Database** (region `asia-southeast1` disyorkan) dan **Storage**.
