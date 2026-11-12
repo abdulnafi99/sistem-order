@@ -84,7 +84,21 @@ export async function createFirebaseBackend(scope, config) {
   const normalizeError = (e) => {
     const code = e && e.code ? String(e.code).replace('functions/', '').replace('firestore/', '') : 'unknown';
     const raw = (e && e.message) || 'Something went wrong';
-    const msg = /missing or insufficient permissions/i.test(raw) ? 'You do not have permission to do that.' : raw;
+    const AUTH_MESSAGES = {
+      'auth/invalid-credential': 'Incorrect email or password.',
+      'auth/invalid-login-credentials': 'Incorrect email or password.',
+      'auth/wrong-password': 'Incorrect email or password.',
+      'auth/user-not-found': 'Incorrect email or password.',
+      'auth/invalid-email': 'Please enter a valid email address.',
+      'auth/user-disabled': 'This account has been disabled.',
+      'auth/too-many-requests': 'Too many attempts. Wait a few minutes, or use “Forgot password?”.',
+      'auth/network-request-failed': 'No connection. Check your internet and try again.',
+      'auth/email-already-in-use': 'This email is already registered. Please sign in instead.',
+      'auth/weak-password': 'Password must be at least 6 characters.',
+      'auth/operation-not-allowed': 'Email sign-in is turned off for this project (Firebase → Authentication → Sign-in method).',
+      'auth/admin-restricted-operation': 'Guest access is turned off (Firebase → Authentication → Sign-in method → Anonymous).',
+    };
+    const msg = AUTH_MESSAGES[code] || (/missing or insufficient permissions/i.test(raw) ? 'You do not have permission to do that.' : raw);
     const err = new Error(msg);
     err.code = code;
     return err;
@@ -190,7 +204,9 @@ export async function createFirebaseBackend(scope, config) {
           return current;
         } catch (e) { throw normalizeError(e); }
       },
-      async resetPassword(email) { await sendPasswordResetEmail(auth, String(email).trim()); },
+      async resetPassword(email) {
+        try { await sendPasswordResetEmail(auth, String(email).trim()); } catch (e) { throw normalizeError(e); }
+      },
       async logout() { await signOut(auth); },
     },
 
